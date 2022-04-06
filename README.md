@@ -4,7 +4,7 @@
 
 3. This Project using R language and basiclly work on R studio.
 
-4. Here is the website of final result: *wait for changing*
+4. Here is the website of final result: 
 
 
 *This repo was initially generated from a bookdown template available here: https://github.com/jtr13/EDAVtemplate.*	
