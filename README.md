@@ -2,9 +2,9 @@
 
 2. This Project pay attention to the top growth of international students in the U.S. in decades, and focus on the decreasing number in countries or regions that are affected by coronavirus. Also, this will figure out if there are other reasons to minimize international students before pandemic. 
 
-3.This Project using R language and basiclly work on R studio.
+3. This Project using R language and basiclly work on R studio.
 
-4.Here is the website of final result: *wait for changing*
+4. Here is the website of final result: *wait for changing*
 
 
 *This repo was initially generated from a bookdown template available here: https://github.com/jtr13/EDAVtemplate.*	
