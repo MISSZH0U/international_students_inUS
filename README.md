@@ -6,6 +6,7 @@
 
 4. Here is the website of final result: https://misszh0u.github.io/international_students_inUS/
 
+5. thanks for read this file
 
 
 *This repo was initially generated from a bookdown template available here: https://github.com/jtr13/EDAVtemplate.*	
