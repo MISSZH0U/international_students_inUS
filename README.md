@@ -4,7 +4,7 @@
 
 3. This Project using R language and basiclly work on R studio.
 
-4. Here is the website of final result: <img width="1119" alt="image" src="https://user-images.githubusercontent.com/102180944/162113441-0781ea3d-eb96-4e65-a8ff-183e9af7e999.png">
+4. Here is the website of final result: https://misszh0u.github.io/international_students_inUS/
 
 
 
