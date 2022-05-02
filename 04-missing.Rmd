@@ -1,1 +1,87 @@
 # Missing values
+
+## still working on comments
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(width = 300)
+```
+
+
+```{r, message=FALSE, include=FALSE}
+library(readxl)
+library(tidyverse)
+library(ggplot2)
+library(stringr)
+library(ggpubr)
+```
+
+
+
+```{r}
+# find which continents do not have na values
+
+df.nabygroup <- df %>%
+  group_by(Continents) %>%
+  summarize_all(.funs = funs('NA' = sum(is.na(.))))
+
+
+non.na.index <- which(rowSums(df.nabygroup[2:ncol(df.nabygroup)]) == 0)
+
+Continents.non.na <- df.nabygroup[non.na.index,1]
+Continents.non.na
+
+
+
+# draw NA pattern
+# rownames(df) <- df$`Place of Origin`
+states <- df %>%
+    setNames(.,c("name","code", substring(colnames(.)[3:34], 1, 4),"Continents"))
+
+tidydata <- states[2:ncol(states)-1] %>%
+      rownames_to_column("id") %>%
+      gather(key, value, -id) %>%
+      mutate(missing = ifelse(is.na(value), "yes", "no"))
+
+missing <- tidydata %>% 
+    group_by(key) %>% 
+    summarise(sum.na = sum(is.na(value)))
+
+ggplot(missing, aes(x = 2:ncol(states)-1, y = sum.na)) +
+  geom_col(color = "blue", fill = "lightblue") +
+  scale_x_continuous(breaks = 2:ncol(states)-1, labels = missing$key) +
+  ggtitle("Number of missing values by years") +
+  xlab("") +
+  ylab("Number of total missing values") +
+  theme(axis.text.x = element_text(angle = 90))
+```
+
+
+
+
+
+
+```{r, warning=FALSE}
+
+rownames(states) <- states$name
+states.na <- states %>%
+    filter(Continents == "Asia")
+
+result <- rowSums(is.na(states.na)) %>%
+  sort(decreasing = TRUE)
+
+tidydata <- states.na %>%
+    filter( name %in% names(result[result != 0]) ) %>%
+    rownames_to_column("id") %>%
+    gather(key, value, -id) %>%
+    mutate(missing = ifelse(is.na(value), "yes", "no"))
+
+ggplot(tidydata, aes(x = key, y = fct_rev(id), fill = missing)) +
+  geom_tile(color = "white") +
+  ggtitle("Place has NA value in Asia") +
+  ylab("Places") +
+  xlab("columns") +
+  scale_fill_viridis_d(option = "inferno") +
+  theme_bw()
+
+```
