@@ -1,1 +1,125 @@
 # Data transformation
+
+## ON PROCESS
+
+Right now this is a test for code can return output when post it
+
+```{r, message=FALSE}
+library(readxl)
+library(tidyverse)
+library(ggplot2)
+library(stringr)
+library(redav)
+library(mi)
+library(ggpubr)
+```
+
+
+```{r}
+projdata <- read_excel("Census_All-Places-of-Origin_OD21.xlsx", 
+                       col_types = c("numeric", "text", "numeric", 
+                                     "numeric", "numeric", "numeric", "numeric", 
+                                     "numeric", "numeric", "numeric", "numeric", "numeric", 
+                                     "numeric", "numeric", "numeric", "numeric", "numeric", 
+                                     "numeric", "numeric", "numeric", "numeric", "numeric", 
+                                     "numeric", "numeric", "numeric", "numeric", "numeric", 
+                                     "numeric", "numeric", "numeric", "numeric", "numeric", 
+                                     "numeric", "numeric"),
+                       na = "-",
+                       col_names = T)
+names(projdata)[1] <- "Code of Origin"
+projdata <- projdata %>%
+  select(`Place of Origin`,`Code of Origin`, `1949/50`:`2020/21`)
+
+head(projdata,3)
+```
+
+
+```{r}
+# whole row are empty
+uselessRow <- rowSums(is.na(projdata)) == ncol(projdata)
+numNARow <- sum(uselessRow); numNARow
+
+# we need to delete them because they are using for separate different place
+# also remove notes/suggesstions
+projdata <- projdata[!uselessRow,] %>%
+  filter(!grepl(":",`Place of Origin`))
+
+tail(projdata)
+```
+
+
+```{r}
+# first remove the grouped summary
+projdata.re.state <- projdata %>%
+  filter(!grepl("[0-9][0-9]00", `Code of Origin`)) %>% # remove part of state summary
+  filter(!grepl("[A-Z]+$", `Place of Origin`)) %>% # remover state summary
+  mutate(Continents = case_when(substring(`Code of Origin`, 1, 1) == 1 ~ "Africa",
+                                substring(`Code of Origin`, 1, 1) == 2 ~ "Asia",
+                                substring(`Code of Origin`, 1, 1) == 3 ~ "Europe",
+                                substring(`Code of Origin`, 1, 1) == 4 ~ "Latin America & Caribbean",
+                                substring(`Code of Origin`, 1, 1) == 5 ~ "Middle East",
+                                substring(`Code of Origin`, 1, 1) == 6 ~ "North America",
+                                substring(`Code of Origin`, 1, 1) == 7 ~ "Oceania",
+                                `Place of Origin` == "Stateless" ~ "Unknown State"
+  )
+  )
+
+projdata.re.state[projdata.re.state$`Place of Origin` == "Bermuda",]$Continents <- "Latin America & Caribbean"
+
+
+
+
+# deal with the former country and grouped unspecified
+# temp.data <- projdata.re.state[is.na(projdata.re.state$`Code of Origin`),]
+
+temp.data <- projdata.re.state %>%
+  filter(grepl("[0-9]999", `Code of Origin`) | is.na(`Code of Origin`))
+
+# unspecified
+temp.data.unsp <- temp.data %>%
+  filter(grepl("Unspecified",`Place of Origin`) ) %>%
+  mutate(Continents = case_when(grepl("Africa",`Place of Origin`) ~ "Africa",
+                                grepl("Asia",`Place of Origin`) ~ "Asia",
+                                grepl("Europe",`Place of Origin`) ~ "Europe",
+                                grepl("Latin America & Caribbean",`Place of Origin`) ~ "Latin America & Caribbean",
+                                grepl("South America",`Place of Origin`) ~ "Latin America & Caribbean",
+                                grepl("Caribbean",`Place of Origin`) ~ "Latin America & Caribbean",
+                                grepl("Mexico",`Place of Origin`) ~ "Latin America & Caribbean",
+                                grepl("Middle East",`Place of Origin`) ~ "Middle East",
+                                grepl("North America",`Place of Origin`) ~ "North America",
+                                grepl("Pacific",`Place of Origin`) ~ "Oceania"
+  )
+  ) %>%
+  group_by(Continents) %>%
+  summarize(.,across(where(is.numeric), ~sum(.x, na.rm = T))) %>%
+  mutate(`Place of Origin` = paste(Continents, "Unspecified", sep = ", ")) %>%
+  select(`Place of Origin`, `Code of Origin`, `1949/50`:`2020/21`, Continents)
+temp.data.unsp
+
+temp.data.fna <- temp.data  %>%
+  filter(!grepl("Unspecified",`Place of Origin`) ) %>%
+  mutate(Continents = case_when(grepl("Former",`Place of Origin`) ~ "Europe",
+                                grepl("Serbia",`Place of Origin`) ~ "Europe",
+                                grepl("Antilles",`Place of Origin`) ~ "Latin America & Caribbean",
+                                grepl("Sahara",`Place of Origin`) ~ "Africa"
+  )
+  )
+
+# temp.data.fna
+```
+
+
+
+### Data after transfrom, read for use. Named: df
+```{r}
+## this is data for later drawing plots in 
+## missing value, results, and inreactive part.
+df <- projdata.re.state %>%
+  filter(!grepl("Unspecified",`Place of Origin`) ) %>%
+  rows_update(temp.data.fna, by = "Place of Origin") %>%
+  rbind(., temp.data.unsp)
+
+head(df)
+```
+
