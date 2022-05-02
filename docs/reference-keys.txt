@@ -5,3 +5,8 @@ missing-values
 results
 interactive-component
 conclusion
+on-process
+data-after-transfrom-read-for-use.-named-df
+tab:unnamed-chunk-6
+tab:unnamed-chunk-7
+tab:unnamed-chunk-9

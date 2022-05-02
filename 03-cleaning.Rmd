@@ -4,6 +4,11 @@
 
 Right now this is a test for code can return output when post it
 
+```{r, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
 ```{r, message=FALSE}
 library(readxl)
 library(tidyverse)
@@ -31,7 +36,11 @@ names(projdata)[1] <- "Code of Origin"
 projdata <- projdata %>%
   select(`Place of Origin`,`Code of Origin`, `1949/50`:`2020/21`)
 
-head(projdata,3)
+knitr::kable(
+  head(projdata[, 1:8], 6), booktabs = TRUE,
+  caption = 'A table of the first 6 rows of our final project data.'
+)
+
 ```
 
 
@@ -45,7 +54,10 @@ numNARow <- sum(uselessRow); numNARow
 projdata <- projdata[!uselessRow,] %>%
   filter(!grepl(":",`Place of Origin`))
 
-tail(projdata)
+knitr::kable(
+  tail(projdata[, 1:8], 3), booktabs = TRUE,
+  caption = 'A table of the last 3 rows to check no extra information.'
+)
 ```
 
 
@@ -65,10 +77,8 @@ projdata.re.state <- projdata %>%
   )
   )
 
-projdata.re.state[projdata.re.state$`Place of Origin` == "Bermuda",]$Continents <- "Latin America & Caribbean"
-
-
-
+projdata.re.state[projdata.re.state$`Place of Origin` 
+                  == "Bermuda",]$Continents <- "Latin America & Caribbean"
 
 # deal with the former country and grouped unspecified
 # temp.data <- projdata.re.state[is.na(projdata.re.state$`Code of Origin`),]
@@ -95,7 +105,6 @@ temp.data.unsp <- temp.data %>%
   summarize(.,across(where(is.numeric), ~sum(.x, na.rm = T))) %>%
   mutate(`Place of Origin` = paste(Continents, "Unspecified", sep = ", ")) %>%
   select(`Place of Origin`, `Code of Origin`, `1949/50`:`2020/21`, Continents)
-temp.data.unsp
 
 temp.data.fna <- temp.data  %>%
   filter(!grepl("Unspecified",`Place of Origin`) ) %>%
@@ -106,7 +115,6 @@ temp.data.fna <- temp.data  %>%
   )
   )
 
-# temp.data.fna
 ```
 
 
@@ -120,6 +128,9 @@ df <- projdata.re.state %>%
   rows_update(temp.data.fna, by = "Place of Origin") %>%
   rbind(., temp.data.unsp)
 
-head(df)
+knitr::kable(
+  head(df[, 1:8], 6), booktabs = TRUE,
+  caption = 'A table of the first 6 rows of data ready for use in the future analysis.'
+)
 ```
 
