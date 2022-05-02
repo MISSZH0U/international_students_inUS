@@ -1,11 +1,9 @@
 # Data transformation
 
-## ON PROCESS
-
-Right now this is a test for code can return output when post it
 
 ```{r, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+options(width = 300)
 ```
 
 
@@ -19,6 +17,12 @@ library(mi)
 library(ggpubr)
 ```
 
+
+## Read data
+
+Our data is come from *Open Door*, which is sponsored by the U.S. Government and Institute of International Education. The original data file format is Microsoft Excel, and `NA` is represent by "-". More, the first column name of place code is empty, so we name it by `Code of Origin`.
+
+<br>
 
 ```{r}
 projdata <- read_excel("Census_All-Places-of-Origin_OD21.xlsx", 
@@ -37,22 +41,31 @@ projdata <- projdata %>%
   select(`Place of Origin`,`Code of Origin`, `1949/50`:`2020/21`)
 
 knitr::kable(
-  head(projdata[, 1:8], 6), booktabs = TRUE,
-  caption = 'A table of the first 6 rows of our final project data.'
+  head(projdata[, 1:8], 4), booktabs = TRUE,
+  caption = 'A table of the first 4 rows of our final project data.'
 )
-
 ```
 
+<br>
 
+Here we can see the data have meaningless NA row, and the value in `Place of Origin` not unified into one logistic type, for example, all value in side are countries or regions. Thus, we need to cleaning them before analysis.
+
+<br>
+
+
+## Cleaning
+
+### Remove the empty row and extra notes in data
 ```{r}
-# whole row are empty
 uselessRow <- rowSums(is.na(projdata)) == ncol(projdata)
-numNARow <- sum(uselessRow); numNARow
+numNARow <- sum(uselessRow)
+numNARow
 
-# we need to delete them because they are using for separate different place
-# also remove notes/suggesstions
 projdata <- projdata[!uselessRow,] %>%
   filter(!grepl(":",`Place of Origin`))
+
+sum(rowSums(is.na(projdata)) == ncol(projdata))
+
 
 knitr::kable(
   tail(projdata[, 1:8], 3), booktabs = TRUE,
@@ -60,12 +73,24 @@ knitr::kable(
 )
 ```
 
+<br>
+
+Here we can see we remove the empty rows and notes in the end. Then we can clean the value.
+
+<br>
+
+### Unified logic type of value and group
+
+
+In this part, we first remove the grouped summary, then deal with the former country and grouped unspecified. We assign them, based their code, on eight `Continents`, which are: Africa, Asia, Europe, Latin America & Caribbean, Middle East, North America, Oceania and Unknown State.
+
+In addition, we grouped the Unspecified countries/regions to unspecified eight continents to facilitate future analysis.
 
 ```{r}
-# first remove the grouped summary
+
 projdata.re.state <- projdata %>%
-  filter(!grepl("[0-9][0-9]00", `Code of Origin`)) %>% # remove part of state summary
-  filter(!grepl("[A-Z]+$", `Place of Origin`)) %>% # remover state summary
+  filter(!grepl("[0-9][0-9]00", `Code of Origin`)) %>%
+  filter(!grepl("[A-Z]+$", `Place of Origin`)) %>% 
   mutate(Continents = case_when(substring(`Code of Origin`, 1, 1) == 1 ~ "Africa",
                                 substring(`Code of Origin`, 1, 1) == 2 ~ "Asia",
                                 substring(`Code of Origin`, 1, 1) == 3 ~ "Europe",
@@ -80,13 +105,9 @@ projdata.re.state <- projdata %>%
 projdata.re.state[projdata.re.state$`Place of Origin` 
                   == "Bermuda",]$Continents <- "Latin America & Caribbean"
 
-# deal with the former country and grouped unspecified
-# temp.data <- projdata.re.state[is.na(projdata.re.state$`Code of Origin`),]
-
 temp.data <- projdata.re.state %>%
   filter(grepl("[0-9]999", `Code of Origin`) | is.na(`Code of Origin`))
 
-# unspecified
 temp.data.unsp <- temp.data %>%
   filter(grepl("Unspecified",`Place of Origin`) ) %>%
   mutate(Continents = case_when(grepl("Africa",`Place of Origin`) ~ "Africa",
@@ -119,10 +140,10 @@ temp.data.fna <- temp.data  %>%
 
 
 
-### Data after transfrom, read for use. Named: df
+## Data use for next few parts
+
+We combine the unspecified Continents data to grouped data, and get the final data set we will use for analysis.
 ```{r}
-## this is data for later drawing plots in 
-## missing value, results, and inreactive part.
 df <- projdata.re.state %>%
   filter(!grepl("Unspecified",`Place of Origin`) ) %>%
   rows_update(temp.data.fna, by = "Place of Origin") %>%
@@ -133,4 +154,9 @@ knitr::kable(
   caption = 'A table of the first 6 rows of data ready for use in the future analysis.'
 )
 ```
+
+<br>
+
+In next chapter, we will discuss the missing values of our data.
+
 

@@ -10,3 +10,8 @@ data-after-transfrom-read-for-use.-named-df
 tab:unnamed-chunk-6
 tab:unnamed-chunk-7
 tab:unnamed-chunk-9
+read-data
+cleaning
+remove-the-empty-row-and-extra-notes-in-data
+unified-logic-type-of-value-and-group
+data-use-for-next-few-parts
