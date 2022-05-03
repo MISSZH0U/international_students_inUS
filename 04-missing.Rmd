@@ -130,6 +130,8 @@ ggplot(tidydata, aes(x = key, y = fct_rev(id), fill = missing)) +
                                "Europe",  "Asia","Africa"
                               ))
 ```
+<br>
+
 Based on this plot, we can find that among the eight continents, North America and the unknown states have no missing values for so many years in the past statistics, and Africa, Europe, and Latin America & the Caribbean have missing values in every academic year. And as a major source of international students in the United States, Asia has no missing value since the 21st century — The same trend is seen in the Middle East and Oceania.
 
 <br>
