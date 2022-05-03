@@ -88,7 +88,9 @@ projdata.re.state <- projdata %>%
                                 substring(`Code of Origin`, 1, 1) == 7 ~ "Oceania",
                                 `Place of Origin` == "Stateless" ~ "Unknown State"
   )
-  )
+  )%>%
+  mutate( `Place of Origin` = replace(`Place of Origin`, 
+                              `Place of Origin` == "Taiwan", "Taiwan, China"))
 
 projdata.re.state[projdata.re.state$`Place of Origin` 
                   == "Bermuda",]$Continents <- "Latin America & Caribbean"

@@ -1,1 +1,246 @@
 # Results
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(width = 200)
+```
+
+```{r, message=FALSE, include=FALSE}
+library(readxl)
+library(tidyverse)
+library(stringr)
+options(dplyr.summarise.inform = FALSE)
+```
+
+```{r, message=FALSE}
+library(ggplot2)
+library(ggpubr)
+```
+
+
+```{r,include=FALSE}
+projdata <- read_excel("Census_All-Places-of-Origin_OD21.xlsx", 
+                       col_types = c("numeric", "text", "numeric", 
+                                     "numeric", "numeric", "numeric", "numeric", 
+                                     "numeric", "numeric", "numeric", "numeric", "numeric", 
+                                     "numeric", "numeric", "numeric", "numeric", "numeric", 
+                                     "numeric", "numeric", "numeric", "numeric", "numeric", 
+                                     "numeric", "numeric", "numeric", "numeric", "numeric", 
+                                     "numeric", "numeric", "numeric", "numeric", "numeric", 
+                                     "numeric", "numeric"),
+                       na = "-",
+                       col_names = T)
+names(projdata)[1] <- "Code of Origin"
+projdata <- projdata %>%
+  select(`Place of Origin`,`Code of Origin`, `1949/50`:`2020/21`)
+
+uselessRow <- rowSums(is.na(projdata)) == ncol(projdata)
+numNARow <- sum(uselessRow)
+projdata <- projdata[!uselessRow,] %>%
+  filter(!grepl(":",`Place of Origin`))
+
+sum(rowSums(is.na(projdata)) == ncol(projdata))
+
+projdata.re.state <- projdata %>%
+  filter(!grepl("[0-9][0-9]00", `Code of Origin`)) %>%
+  filter(!grepl("[A-Z]+$", `Place of Origin`)) %>% 
+  mutate(Continents = case_when(substring(`Code of Origin`, 1, 1) == 1 ~ "Africa",
+                                substring(`Code of Origin`, 1, 1) == 2 ~ "Asia",
+                                substring(`Code of Origin`, 1, 1) == 3 ~ "Europe",
+                                substring(`Code of Origin`, 1, 1) == 4 ~ "Latin America & Caribbean",
+                                substring(`Code of Origin`, 1, 1) == 5 ~ "Middle East",
+                                substring(`Code of Origin`, 1, 1) == 6 ~ "North America",
+                                substring(`Code of Origin`, 1, 1) == 7 ~ "Oceania",
+                                `Place of Origin` == "Stateless" ~ "Unknown State"
+  )
+  )  %>%
+  mutate( `Place of Origin` = replace(`Place of Origin`, 
+                              `Place of Origin` == "Taiwan", "Taiwan, China"))
+
+projdata.re.state[projdata.re.state$`Place of Origin` 
+                  == "Bermuda",]$Continents <- "Latin America & Caribbean"
+
+temp.data <- projdata.re.state %>%
+  filter(grepl("[0-9]999", `Code of Origin`) | is.na(`Code of Origin`))
+
+temp.data.unsp <- temp.data %>%
+  filter(grepl("Unspecified",`Place of Origin`) ) %>%
+  mutate(Continents = case_when(grepl("Africa",`Place of Origin`) ~ "Africa",
+                                grepl("Asia",`Place of Origin`) ~ "Asia",
+                                grepl("Europe",`Place of Origin`) ~ "Europe",
+                                grepl("Latin America & Caribbean",`Place of Origin`) ~ "Latin America & Caribbean",
+                                grepl("South America",`Place of Origin`) ~ "Latin America & Caribbean",
+                                grepl("Caribbean",`Place of Origin`) ~ "Latin America & Caribbean",
+                                grepl("Mexico",`Place of Origin`) ~ "Latin America & Caribbean",
+                                grepl("Middle East",`Place of Origin`) ~ "Middle East",
+                                grepl("North America",`Place of Origin`) ~ "North America",
+                                grepl("Pacific",`Place of Origin`) ~ "Oceania"
+  )
+  ) %>%
+  group_by(Continents) %>%
+  summarize(.,across(where(is.numeric), ~sum(.x, na.rm = T))) %>%
+  mutate(`Place of Origin` = paste(Continents, "Unspecified", sep = ", ")) %>%
+  select(`Place of Origin`, `Code of Origin`, `1949/50`:`2020/21`, Continents)
+
+temp.data.unsp[temp.data.unsp$`Place of Origin` == "Africa, Unspecified",]$`Code of Origin` <- 1999
+temp.data.unsp[temp.data.unsp$`Place of Origin` == "Asia, Unspecified",]$`Code of Origin` <- 2999
+temp.data.unsp[temp.data.unsp$`Place of Origin` == "Middle East, Unspecified",]$`Code of Origin` <- 5999
+temp.data.unsp[temp.data.unsp$`Place of Origin` == "Oceania, Unspecified",]$`Code of Origin` <- 7999
+
+temp.data.fna <- temp.data  %>%
+  filter(!grepl("Unspecified",`Place of Origin`) ) %>%
+  mutate(Continents = case_when(grepl("Former",`Place of Origin`) ~ "Europe",
+                                grepl("Serbia",`Place of Origin`) ~ "Europe",
+                                grepl("Antilles",`Place of Origin`) ~ "Latin America & Caribbean",
+                                grepl("Sahara",`Place of Origin`) ~ "Africa"
+  )
+  )
+
+
+df <- projdata.re.state %>%
+  filter(!grepl("Unspecified",`Place of Origin`) ) %>%
+  rows_update(temp.data.fna, by = "Place of Origin") %>%
+  rbind(., temp.data.unsp)
+
+df.tidy <- df %>%
+pivot_longer(c("1949/50", "1954/55", "1959/60", "1964/65", "1969/70", "1974/75", "1979/80",
+               "1984/85", "1989/90", "1994/95", "1999/00", "2000/01", "2001/02", "2002/03",
+               "2003/04", "2004/05", "2005/06", "2006/07", "2007/08", "2008/09", "2009/10",
+               "2010/11", "2011/12", "2012/13", "2013/14", "2014/15", "2015/16", "2016/17",
+               "2017/18", "2018/19", "2019/20", "2020/21"), names_to = "Academic_year",
+             values_to = "student_numbers") %>%
+  mutate( century = case_when(Academic_year < "2000/01" ~ "20th century",
+                              Academic_year >= "2000/01" ~ "21th century") )
+```
+
+
+## What the number of international students and growth trend in 20 century and 21 century
+
+### Total number of international students study in the U.S. in different century
+```{r}
+tidysum <- df.tidy %>%
+  select(`Place of Origin`, Continents, Academic_year, student_numbers, century) %>%
+  group_by(Continents, century) %>%
+  summarize(.,across(where(is.numeric), ~sum(.x, na.rm = T)/1000000)) %>%
+  ungroup() %>%
+  mutate(Continents = replace(Continents, 
+                              Continents == "Latin America & Caribbean", "LA&C")) %>%
+  mutate(Continents = replace(Continents, 
+                              Continents == "Middle East", "ME")) %>%
+  mutate(Continents = replace(Continents, 
+                              Continents == "North America", "NorA")) %>%
+  mutate(Continents = replace(Continents, 
+                              Continents == "Unknown State", "Unkwn")) %>%
+  mutate(Continents = replace(Continents, 
+                              Continents == "Oceania", "Ocean"))
+
+
+ggplot(tidysum, aes(x = Continents, y = student_numbers)) +
+  geom_col(color = "#142b73", fill = "#153E7E") + 
+  facet_wrap(~century) + 
+  ggtitle("Total number of international students study in the U.S. in different century") +
+  xlab("Continents") +
+  ylab("Student number (Million)") +
+  theme_bw() +
+  labs(caption = "(LA&C: Latin America & Caribbean, ME: Middle East, NorA: North America, Ocean: Oceania)") +
+  theme(panel.grid.major.x = element_blank(),
+        plot.caption = element_text(color = "darkgrey", face = "italic", size = 9,
+                                    hjust = 0.5)) 
+```
+
+### trend of international students study in the U.S. in different century
+
+```{r}
+draw.totalnum <- function(c){
+  tidytotal.num <- df.tidy %>%
+    select(`Place of Origin`, Continents, Academic_year, student_numbers, century) %>%
+    filter(century == c) %>%
+    group_by(Continents, Academic_year, century) %>%
+    summarize(.,across(where(is.numeric), ~sum(.x, na.rm = T))/100000) %>%
+    ungroup()
+  
+  ggplot(tidytotal.num, aes(as.numeric(substr(Academic_year, 1,4)), 
+                           student_numbers, col = Continents)) +
+    geom_line(alpha = 0.5) +
+    geom_point(alpha = 0.8) + 
+    xlab("")+ ylab("")+
+    ylim(0,9) +
+    theme_bw() +
+    theme(panel.grid.major.x = element_blank(),
+          plot.caption = element_text(color = "grey", face = "italic", size = 9,
+                                      hjust = 0.5)) + 
+    scale_color_brewer(palette="Dark2")
+}
+
+p20 <- draw.totalnum("20th century")
+p21 <- draw.totalnum("21th century")
+
+pt <- ggarrange(p20, p21, ncol=2, nrow=1, common.legend = TRUE, legend="top")
+
+annotate_figure(pt, 
+                top = text_grob("Total number of international students study in the U.S. in different century", 
+                                face = "bold", size = 12),
+                left = "Student number (Million)",
+                bottom = "Year in 20th centry (left) and 21th centry (right)")
+
+```
+
+### The largest increase in the total number of students per country/region in two centuries on the continent
+
+```{r}
+tidysum.asia <- df.tidy %>%
+  select(`Place of Origin`, Continents, Academic_year, student_numbers, century) %>%
+  filter(Continents == "Asia") %>%
+  group_by(`Place of Origin`, century) %>%
+  summarize(.,across(where(is.numeric), ~sum(.x, na.rm = T)/1000000)) %>%
+  ungroup()
+
+top5.asia <- tidysum.asia %>%
+  group_by(`Place of Origin`) %>%
+  summarise(total_num = sum(student_numbers)) %>%
+  slice_max(total_num, n = 6) %>%
+  select(`Place of Origin`)
+
+
+p.top6 <- tidysum.asia %>%
+  filter(`Place of Origin` %in% top5.asia$`Place of Origin`) %>%
+  ggplot(aes(x = student_numbers, 
+             y = fct_reorder2(`Place of Origin`, century == "21th century", student_numbers,
+                              .desc = FALSE), color = century)) +
+  geom_point(size = 2) +
+  ylab("") +
+  xlab("Student numbers (Million)")+
+  theme_linedraw() +
+  scale_color_manual(values = c("#C3D7A4", "#153E7E"))
+
+p.other <- tidysum.asia %>%
+  filter(!(`Place of Origin` %in% top5.asia$`Place of Origin`)) %>%
+  ggplot(aes(x = student_numbers, 
+             y = fct_reorder2(`Place of Origin`, century == "21th century", student_numbers,
+                              .desc = FALSE), color = century)) +
+  geom_point(size = 2) +
+  ylab("") +
+  xlab("Student numbers (Million)")+
+  theme_linedraw() +
+  scale_color_manual(values = c("#C3D7A4", "#153E7E"))
+
+pt2 <- ggarrange(p.other, p.top6, ncol=2, nrow=1, common.legend = TRUE, legend="top")
+
+annotate_figure(pt2, 
+                top = text_grob("Number of Asian students study in US", 
+                                face = "bold", size = 12),
+                right = "top 6 countries/region with students",
+                left = "countries/region with a few students")
+
+
+```
+
+
+
+## question 2
+
+
+## question 3
+
+
+

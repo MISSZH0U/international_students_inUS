@@ -30,3 +30,8 @@ general-information-of-dataset
 describtion-of-variable
 issue-of-data-set
 what-the-number-of-international-students-and-growth-trend-in-20-century-and-21-century
+total-number-of-international-students-study-in-the-u.s.-in-different-century
+trend-of-international-students-study-in-the-u.s.-in-different-century
+the-largest-increase-in-the-total-number-of-students-per-countryregion-in-two-centuries-on-the-continent
+question-2
+question-3
