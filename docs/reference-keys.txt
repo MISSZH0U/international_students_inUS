@@ -35,3 +35,6 @@ trend-of-international-students-study-in-the-u.s.-in-different-century
 the-largest-increase-in-the-total-number-of-students-per-countryregion-in-two-centuries-on-the-continent
 question-2
 question-3
+for-missing-value.
+for-place-of-origin
+for-missing-value
