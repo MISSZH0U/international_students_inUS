@@ -130,6 +130,7 @@ ggplot(tidydata, aes(x = key, y = fct_rev(id), fill = missing)) +
                                "Europe",  "Asia","Africa"
                               ))
 ```
+
 <br>
 
 Based on this plot, we can find that among the eight continents, North America and the unknown states have no missing values for so many years in the past statistics, and Africa, Europe, and Latin America & the Caribbean have missing values in every academic year. And as a major source of international students in the United States, Asia has no missing value since the 21st century — The same trend is seen in the Middle East and Oceania.
@@ -160,6 +161,7 @@ ggplot(missing, aes(x = 2:ncol(states)-1, y = sum.na)) +
   theme(axis.text.x = element_text(angle = 90))
 
 ```
+
 <br>
 
 Based on this figure, we can find that: as time goes on, each column has fewer and fewer missing values and enters the 21st century with very small and relatively smooth data.
