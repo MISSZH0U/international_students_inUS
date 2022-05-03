@@ -15,3 +15,5 @@ cleaning
 remove-the-empty-row-and-extra-notes-in-data
 unified-logic-type-of-value-and-group
 data-use-for-next-few-parts
+still-working-on-comments
+tab:unnamed-chunk-8
