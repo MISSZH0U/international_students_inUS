@@ -24,3 +24,9 @@ total-number-of-missing-values-by-column
 tab:unnamed-chunk-12
 tab:unnamed-chunk-11
 tab:unnamed-chunk-13
+tab:unnamed-chunk-10
+tab:unnamed-chunk-14
+general-information-of-dataset
+describtion-of-variable
+issue-of-data-set
+what-the-number-of-international-students-and-growth-trend-in-20-century-and-21-century

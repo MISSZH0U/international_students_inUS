@@ -1,2 +1,61 @@
 # Data sources
 
+The aim of this project is to analyze the changes in the population of international students studying in the United States from various countries in recent years. The data was collected from [*All Places of Origin, Open Door*](https://opendoorsdata.org/data/international-students/all-places-of-origin/), which is sponsored by the U.S. Government and Institute of International Education. We selected international students for from 1949 to 2020 from various regions, including Africa, Asia, Europe, Latin America & Caribbean, Middle East, Oceania.
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(width = 200)
+```
+
+```{r, message=FALSE}
+library(readxl)
+library(tidyverse)
+library(stringr)
+```
+
+## General Information of Dataset
+```{r}
+projdata <- read_excel("Census_All-Places-of-Origin_OD21.xlsx", 
+                       col_types = c("numeric", "text", "numeric", 
+                                     "numeric", "numeric", "numeric", "numeric", 
+                                     "numeric", "numeric", "numeric", "numeric", "numeric", 
+                                     "numeric", "numeric", "numeric", "numeric", "numeric", 
+                                     "numeric", "numeric", "numeric", "numeric", "numeric", 
+                                     "numeric", "numeric", "numeric", "numeric", "numeric", 
+                                     "numeric", "numeric", "numeric", "numeric", "numeric", 
+                                     "numeric", "numeric"),
+                       na = "-",
+                       col_names = T)
+names(projdata)[1] <- "Code of Origin"
+projdata <- projdata %>%
+  select(`Place of Origin`,`Code of Origin`, `1949/50`:`2020/21`)
+```
+
+```{r}
+nrow(projdata)
+ncol(projdata)
+```
+
+```{r, echo=FALSE}
+knitr::kable(
+  head(projdata[, 1:8], 4), booktabs = TRUE,
+  caption = 'A table of the first 4 rows of our final project data.'
+)
+```
+
+<br>
+
+## Describtion of Variable
+
+
+<br>
+
+## Issue of Data set
+
+
+
+
+
+
+
+<br>

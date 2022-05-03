@@ -5,7 +5,7 @@ knitr::opts_chunk$set(echo = TRUE)
 options(width = 200)
 ```
 
-```{r, message=FALSE}
+```{r, message=FALSE, echo = FALSE}
 library(readxl)
 library(tidyverse)
 library(stringr)
@@ -15,7 +15,7 @@ library(stringr)
 
 Our data is come from *Open Door*, which is sponsored by the U.S. Government and Institute of International Education. The original data file format is Microsoft Excel, and `NA` is represent by "-". More, the first column name of place code is empty, so we name it by `Code of Origin`.
 
-```{r}
+```{r, echo=FALSE}
 projdata <- read_excel("Census_All-Places-of-Origin_OD21.xlsx", 
                        col_types = c("numeric", "text", "numeric", 
                                      "numeric", "numeric", "numeric", "numeric", 
@@ -177,5 +177,42 @@ Academic Years: `1949/50` to `2020/21`, but the years before the 21st century we
 
 <br>
 
+
+Also, we create a tidy data and add categorical for different century.
+
+```{r}
+df.tidy <- df %>%
+pivot_longer(c("1949/50", "1954/55", "1959/60", "1964/65", "1969/70", "1974/75", "1979/80",
+               "1984/85", "1989/90", "1994/95", "1999/00", "2000/01", "2001/02", "2002/03",
+               "2003/04", "2004/05", "2005/06", "2006/07", "2007/08", "2008/09", "2009/10",
+               "2010/11", "2011/12", "2012/13", "2013/14", "2014/15", "2015/16", "2016/17",
+               "2017/18", "2018/19", "2019/20", "2020/21"), names_to = "Acdemic_year",
+             values_to = "student_numbers") %>%
+  mutate( century = case_when(Acdemic_year < "2000/01" ~ "20th century",
+                              Acdemic_year >= "2000/01" ~ "21th century") )
+
+```
+
+```{r, echo=FALSE}
+knitr::kable(
+  head(df.tidy, 6), booktabs = TRUE,
+  caption = 'A table of the first 6 rows of tidydata'
+)
+```
+
+Now this table will have this: 
+
+`Place of Origin`: Including Places on country or region level, Unspecified is based on Continents level;
+
+`Code of Origin`: Code of Place, some place and former country have missing value;
+
+`Continents`: Added group, based this eight categories: Africa, Asia, Europe, Latin America & Caribbean, Middle East, North America, Oceania and Unknown State;
+
+`Academic Years`: 1949/50 to 2020/21, years before the 21st century were inconsistent;
+
+`century`: 20th century or 21th century.
+
+
+<br>
 
 In next chapter, we will discuss the missing values of our data.
