@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Changes of international students in the U.S. around the epidemic</title>
   <meta name="description" content="Changes of international students in the U.S. around the epidemic" />
-  <meta name="generator" content="bookdown 0.25 and GitBook 2.6.7" />
+  <meta name="generator" content="bookdown 0.26 and GitBook 2.6.7" />
 
   <meta property="og:title" content="Changes of international students in the U.S. around the epidemic" />
   <meta property="og:type" content="book" />
@@ -23,7 +23,7 @@
 <meta name="author" content="Jiayuan Zhou, Wenqi Yu" />
 
 
-<meta name="date" content="2022-04-06" />
+<meta name="date" content="2022-05-03" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -72,13 +72,26 @@
 <li><a href="./">international students changes in U.S.</a></li>
 
 <li class="divider"></li>
-<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Introduction<span></span></a></li>
-<li class="chapter" data-level="2" data-path="data-sources.html"><a href="data-sources.html"><i class="fa fa-check"></i><b>2</b> Data sources<span></span></a></li>
-<li class="chapter" data-level="3" data-path="data-transformation.html"><a href="data-transformation.html"><i class="fa fa-check"></i><b>3</b> Data transformation<span></span></a></li>
-<li class="chapter" data-level="4" data-path="missing-values.html"><a href="missing-values.html"><i class="fa fa-check"></i><b>4</b> Missing values<span></span></a></li>
-<li class="chapter" data-level="5" data-path="results.html"><a href="results.html"><i class="fa fa-check"></i><b>5</b> Results<span></span></a></li>
-<li class="chapter" data-level="6" data-path="interactive-component.html"><a href="interactive-component.html"><i class="fa fa-check"></i><b>6</b> Interactive component<span></span></a></li>
-<li class="chapter" data-level="7" data-path="conclusion.html"><a href="conclusion.html"><i class="fa fa-check"></i><b>7</b> Conclusion<span></span></a></li>
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Introduction</a></li>
+<li class="chapter" data-level="2" data-path="data-sources.html"><a href="data-sources.html"><i class="fa fa-check"></i><b>2</b> Data sources</a></li>
+<li class="chapter" data-level="3" data-path="data-transformation.html"><a href="data-transformation.html"><i class="fa fa-check"></i><b>3</b> Data transformation</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="data-transformation.html"><a href="data-transformation.html#read-data"><i class="fa fa-check"></i><b>3.1</b> Read data</a></li>
+<li class="chapter" data-level="3.2" data-path="data-transformation.html"><a href="data-transformation.html#cleaning"><i class="fa fa-check"></i><b>3.2</b> Cleaning</a>
+<ul>
+<li class="chapter" data-level="3.2.1" data-path="data-transformation.html"><a href="data-transformation.html#remove-the-empty-row-and-extra-notes-in-data"><i class="fa fa-check"></i><b>3.2.1</b> Remove the empty row and extra notes in data</a></li>
+<li class="chapter" data-level="3.2.2" data-path="data-transformation.html"><a href="data-transformation.html#unified-logic-type-of-value-and-group"><i class="fa fa-check"></i><b>3.2.2</b> Unified logic type of value and group</a></li>
+</ul></li>
+<li class="chapter" data-level="3.3" data-path="data-transformation.html"><a href="data-transformation.html#data-use-for-next-few-parts"><i class="fa fa-check"></i><b>3.3</b> Data use for next few parts</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="missing-values.html"><a href="missing-values.html"><i class="fa fa-check"></i><b>4</b> Missing values</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="missing-values.html"><a href="missing-values.html#na-shows-in-different-groups-by-column"><i class="fa fa-check"></i><b>4.1</b> NA shows in different groups by column</a></li>
+<li class="chapter" data-level="4.2" data-path="missing-values.html"><a href="missing-values.html#total-number-of-missing-values-by-column"><i class="fa fa-check"></i><b>4.2</b> Total number of missing values by column</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="results.html"><a href="results.html"><i class="fa fa-check"></i><b>5</b> Results</a></li>
+<li class="chapter" data-level="6" data-path="interactive-component.html"><a href="interactive-component.html"><i class="fa fa-check"></i><b>6</b> Interactive component</a></li>
+<li class="chapter" data-level="7" data-path="conclusion.html"><a href="conclusion.html"><i class="fa fa-check"></i><b>7</b> Conclusion</a></li>
 <li class="divider"></li>
 <li><a href="https://github.com/rstudio/bookdown" target="blank">Published with bookdown</a></li>
 </ul>
@@ -101,10 +114,12 @@
 <div id="header">
 <h1 class="title">Changes of international students in the U.S. around the epidemic</h1>
 <p class="author"><em>Jiayuan Zhou, Wenqi Yu</em></p>
-<p class="date"><em>2022-04-06</em></p>
+<p class="date"><em>2022-05-03</em></p>
 </div>
 <div id="introduction" class="section level1 hasAnchor" number="1">
 <h1><span class="header-section-number">Chapter 1</span> Introduction<a href="index.html#introduction" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>With the development of the global economy and politics, the cultural exchanges between countries are getting closer and closer. However, since 2016, the development of global study abroad has been affected by living environment and immigration policies, showing an overall slowdown in growth rate. Among them, the United Kingdom and the United States, which are traditionally strong countries for studying abroad, have seen a significant decline in the number of international students. Especially in the severe epidemic environment, studying in the United States has indeed brought many challenges to all international students. But America’s charisma still has a huge impact compared to other developing countries. This comes from the large number of American universities and colleges, and the leading educational resources and academic level.</p>
+<p>According to the report of the UNESCO Institute of Statistics, in recent years, the international students studying in the world are divided according to the continent to which the students originate. Asia ranks first with 57% of the students, followed by Europe, Africa, North America, South America, and Oceania. Since the issue of studying abroad is a common topic of discussion in society, data analysts have been studying the changes in the number of countries studying in the United States in recent years. Therefore, we decided to use exploratory data analysis to study which country has experienced the fastest growth in the number of students studying abroad over the past years, and which country has suffered a severe decline in the number of students affected by the Covid-19 epidemic and the US immigration policy.</p>
 
 </div>
             </section>
