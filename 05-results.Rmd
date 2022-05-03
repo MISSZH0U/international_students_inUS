@@ -198,18 +198,19 @@ tidysum.asia <- df.tidy %>%
 top5.asia <- tidysum.asia %>%
   group_by(`Place of Origin`) %>%
   summarise(total_num = sum(student_numbers)) %>%
-  slice_max(total_num, n = 6) %>%
+  slice_max(total_num, n = 16) %>%
   select(`Place of Origin`)
 
 
-p.top6 <- tidysum.asia %>%
+p.top16 <- tidysum.asia %>%
   filter(`Place of Origin` %in% top5.asia$`Place of Origin`) %>%
   ggplot(aes(x = student_numbers, 
              y = fct_reorder2(`Place of Origin`, century == "21th century", student_numbers,
                               .desc = FALSE), color = century)) +
   geom_point(size = 2) +
-  ylab("") +
-  xlab("Student numbers (Million)")+
+  labs(title = "Top 16 countries/region with students") +
+  xlab("")+ ylab("")+
+  xlim(0, 4.5)+
   theme_linedraw() +
   scale_color_manual(values = c("#C3D7A4", "#153E7E"))
 
@@ -219,18 +220,18 @@ p.other <- tidysum.asia %>%
              y = fct_reorder2(`Place of Origin`, century == "21th century", student_numbers,
                               .desc = FALSE), color = century)) +
   geom_point(size = 2) +
-  ylab("") +
-  xlab("Student numbers (Million)")+
+  labs(title = "Countries/region with a few students") +
+  xlab("Student numbers (Million)")+ ylab("")+
+  xlim(0, 0.045)+
   theme_linedraw() +
   scale_color_manual(values = c("#C3D7A4", "#153E7E"))
 
-pt2 <- ggarrange(p.other, p.top6, ncol=2, nrow=1, common.legend = TRUE, legend="top")
+pt2 <- ggarrange(p.top16, p.other, ncol=1, nrow=2, common.legend = TRUE, legend="top",
+                 align = "v")
 
 annotate_figure(pt2, 
                 top = text_grob("Number of Asian students study in US", 
-                                face = "bold", size = 12),
-                right = "top 6 countries/region with students",
-                left = "countries/region with a few students")
+                                face = "bold", size = 12))
 
 
 ```
