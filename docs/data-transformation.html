@@ -23,7 +23,7 @@
 <meta name="author" content="Jiayuan Zhou, Wenqi Yu" />
 
 
-<meta name="date" content="2022-05-02" />
+<meta name="date" content="2022-05-03" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -148,7 +148,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 <li class="chapter" data-level="3.3" data-path="data-transformation.html"><a href="data-transformation.html#data-use-for-next-few-parts"><i class="fa fa-check"></i><b>3.3</b> Data use for next few parts</a></li>
 </ul></li>
-<li class="chapter" data-level="4" data-path="missing-values.html"><a href="missing-values.html"><i class="fa fa-check"></i><b>4</b> Missing values</a></li>
+<li class="chapter" data-level="4" data-path="missing-values.html"><a href="missing-values.html"><i class="fa fa-check"></i><b>4</b> Missing values</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="missing-values.html"><a href="missing-values.html#na-shows-in-different-groups-by-column"><i class="fa fa-check"></i><b>4.1</b> NA shows in different groups by column</a></li>
+<li class="chapter" data-level="4.2" data-path="missing-values.html"><a href="missing-values.html#total-number-of-missing-values-by-column"><i class="fa fa-check"></i><b>4.2</b> Total number of missing values by column</a></li>
+</ul></li>
 <li class="chapter" data-level="5" data-path="results.html"><a href="results.html"><i class="fa fa-check"></i><b>5</b> Results</a></li>
 <li class="chapter" data-level="6" data-path="interactive-component.html"><a href="interactive-component.html"><i class="fa fa-check"></i><b>6</b> Interactive component</a></li>
 <li class="chapter" data-level="7" data-path="conclusion.html"><a href="conclusion.html"><i class="fa fa-check"></i><b>7</b> Conclusion</a></li>
@@ -175,15 +179,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h1><span class="header-section-number">Chapter 3</span> Data transformation<a href="data-transformation.html#data-transformation" class="anchor-section" aria-label="Anchor link to header"></a></h1>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="data-transformation.html#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
 <span id="cb1-2"><a href="data-transformation.html#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb1-3"><a href="data-transformation.html#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb1-4"><a href="data-transformation.html#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
-<span id="cb1-5"><a href="data-transformation.html#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(redav)</span>
-<span id="cb1-6"><a href="data-transformation.html#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mi)</span>
-<span id="cb1-7"><a href="data-transformation.html#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggpubr)</span></code></pre></div>
+<span id="cb1-3"><a href="data-transformation.html#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span></code></pre></div>
 <div id="read-data" class="section level2 hasAnchor" number="3.1">
 <h2><span class="header-section-number">3.1</span> Read data<a href="data-transformation.html#read-data" class="anchor-section" aria-label="Anchor link to header"></a></h2>
 <p>Our data is come from <em>Open Door</em>, which is sponsored by the U.S. Government and Institute of International Education. The original data file format is Microsoft Excel, and <code>NA</code> is represent by “-”. More, the first column name of place code is empty, so we name it by <code>Code of Origin</code>.</p>
-<p><br></p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="data-transformation.html#cb2-1" aria-hidden="true" tabindex="-1"></a>projdata <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">&quot;Census_All-Places-of-Origin_OD21.xlsx&quot;</span>, </span>
 <span id="cb2-2"><a href="data-transformation.html#cb2-2" aria-hidden="true" tabindex="-1"></a>                       <span class="at">col_types =</span> <span class="fu">c</span>(<span class="st">&quot;numeric&quot;</span>, <span class="st">&quot;text&quot;</span>, <span class="st">&quot;numeric&quot;</span>, </span>
 <span id="cb2-3"><a href="data-transformation.html#cb2-3" aria-hidden="true" tabindex="-1"></a>                                     <span class="st">&quot;numeric&quot;</span>, <span class="st">&quot;numeric&quot;</span>, <span class="st">&quot;numeric&quot;</span>, <span class="st">&quot;numeric&quot;</span>, </span>
@@ -197,14 +196,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb2-11"><a href="data-transformation.html#cb2-11" aria-hidden="true" tabindex="-1"></a>                       <span class="at">col_names =</span> T)</span>
 <span id="cb2-12"><a href="data-transformation.html#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(projdata)[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="st">&quot;Code of Origin&quot;</span></span>
 <span id="cb2-13"><a href="data-transformation.html#cb2-13" aria-hidden="true" tabindex="-1"></a>projdata <span class="ot">&lt;-</span> projdata <span class="sc">%&gt;%</span></span>
-<span id="cb2-14"><a href="data-transformation.html#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="st">`</span><span class="at">Place of Origin</span><span class="st">`</span>,<span class="st">`</span><span class="at">Code of Origin</span><span class="st">`</span>, <span class="st">`</span><span class="at">1949/50</span><span class="st">`</span><span class="sc">:</span><span class="st">`</span><span class="at">2020/21</span><span class="st">`</span>)</span>
-<span id="cb2-15"><a href="data-transformation.html#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-16"><a href="data-transformation.html#cb2-16" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
-<span id="cb2-17"><a href="data-transformation.html#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(projdata[, <span class="dv">1</span><span class="sc">:</span><span class="dv">8</span>], <span class="dv">4</span>), <span class="at">booktabs =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb2-18"><a href="data-transformation.html#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">&#39;A table of the first 4 rows of our final project data.&#39;</span></span>
-<span id="cb2-19"><a href="data-transformation.html#cb2-19" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<span id="cb2-14"><a href="data-transformation.html#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="st">`</span><span class="at">Place of Origin</span><span class="st">`</span>,<span class="st">`</span><span class="at">Code of Origin</span><span class="st">`</span>, <span class="st">`</span><span class="at">1949/50</span><span class="st">`</span><span class="sc">:</span><span class="st">`</span><span class="at">2020/21</span><span class="st">`</span>)</span></code></pre></div>
 <table style="width:100%;">
-<caption><span id="tab:unnamed-chunk-6">Table 3.1: </span>A table of the first 4 rows of our final project data.</caption>
+<caption><span id="tab:unnamed-chunk-7">Table 3.1: </span>A table of the first 4 rows of our final project data.</caption>
 <colgroup>
 <col width="34%" />
 <col width="15%" />
@@ -270,8 +264,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </tr>
 </tbody>
 </table>
-<p><br></p>
-<p>Here we can see the data have meaningless NA row, and the value in <code>Place of Origin</code> not unified into one logistic type, for example, all value in side are countries or regions. Thus, we need to cleaning them before analysis.</p>
+<p>In this table, we can see the data have meaningless NA row, and the value in <code>Place of Origin</code> not unified into one logistic type, for example, all value in side are countries or regions. Thus, we need to cleaning them before analysis.</p>
 <p><br></p>
 </div>
 <div id="cleaning" class="section level2 hasAnchor" number="3.2">
@@ -287,12 +280,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb5-3"><a href="data-transformation.html#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-4"><a href="data-transformation.html#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">rowSums</span>(<span class="fu">is.na</span>(projdata)) <span class="sc">==</span> <span class="fu">ncol</span>(projdata))</span></code></pre></div>
 <pre><code>## [1] 0</code></pre>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="data-transformation.html#cb7-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
-<span id="cb7-2"><a href="data-transformation.html#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tail</span>(projdata[, <span class="dv">1</span><span class="sc">:</span><span class="dv">8</span>], <span class="dv">3</span>), <span class="at">booktabs =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb7-3"><a href="data-transformation.html#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">&#39;A table of the last 3 rows to check no extra information.&#39;</span></span>
-<span id="cb7-4"><a href="data-transformation.html#cb7-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
 <table style="width:100%;">
-<caption><span id="tab:unnamed-chunk-7">Table 3.2: </span>A table of the last 3 rows to check no extra information.</caption>
+<caption><span id="tab:unnamed-chunk-9">Table 3.2: </span>A table of the last 3 rows to check no extra information.</caption>
 <colgroup>
 <col width="31%" />
 <col width="16%" />
@@ -348,77 +337,83 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </tr>
 </tbody>
 </table>
-<p><br></p>
-<p>Here we can see we remove the empty rows and notes in the end. Then we can clean the value.</p>
+<p>In this table, we can see we remove the empty rows and notes in the end, and all of the value in columns are data we need. Then we can clean the value.</p>
 <p><br></p>
 </div>
 <div id="unified-logic-type-of-value-and-group" class="section level3 hasAnchor" number="3.2.2">
 <h3><span class="header-section-number">3.2.2</span> Unified logic type of value and group<a href="data-transformation.html#unified-logic-type-of-value-and-group" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>In this part, we first remove the grouped summary, then deal with the former country and grouped unspecified. We assign them, based their code, on eight <code>Continents</code>, which are: Africa, Asia, Europe, Latin America &amp; Caribbean, Middle East, North America, Oceania and Unknown State.</p>
-<p>In addition, we grouped the Unspecified countries/regions to unspecified eight continents to facilitate future analysis.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="data-transformation.html#cb8-1" aria-hidden="true" tabindex="-1"></a>projdata.re.state <span class="ot">&lt;-</span> projdata <span class="sc">%&gt;%</span></span>
-<span id="cb8-2"><a href="data-transformation.html#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">grepl</span>(<span class="st">&quot;[0-9][0-9]00&quot;</span>, <span class="st">`</span><span class="at">Code of Origin</span><span class="st">`</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb8-3"><a href="data-transformation.html#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">grepl</span>(<span class="st">&quot;[A-Z]+$&quot;</span>, <span class="st">`</span><span class="at">Place of Origin</span><span class="st">`</span>)) <span class="sc">%&gt;%</span> </span>
-<span id="cb8-4"><a href="data-transformation.html#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Continents =</span> <span class="fu">case_when</span>(<span class="fu">substring</span>(<span class="st">`</span><span class="at">Code of Origin</span><span class="st">`</span>, <span class="dv">1</span>, <span class="dv">1</span>) <span class="sc">==</span> <span class="dv">1</span> <span class="sc">~</span> <span class="st">&quot;Africa&quot;</span>,</span>
-<span id="cb8-5"><a href="data-transformation.html#cb8-5" aria-hidden="true" tabindex="-1"></a>                                <span class="fu">substring</span>(<span class="st">`</span><span class="at">Code of Origin</span><span class="st">`</span>, <span class="dv">1</span>, <span class="dv">1</span>) <span class="sc">==</span> <span class="dv">2</span> <span class="sc">~</span> <span class="st">&quot;Asia&quot;</span>,</span>
-<span id="cb8-6"><a href="data-transformation.html#cb8-6" aria-hidden="true" tabindex="-1"></a>                                <span class="fu">substring</span>(<span class="st">`</span><span class="at">Code of Origin</span><span class="st">`</span>, <span class="dv">1</span>, <span class="dv">1</span>) <span class="sc">==</span> <span class="dv">3</span> <span class="sc">~</span> <span class="st">&quot;Europe&quot;</span>,</span>
-<span id="cb8-7"><a href="data-transformation.html#cb8-7" aria-hidden="true" tabindex="-1"></a>                                <span class="fu">substring</span>(<span class="st">`</span><span class="at">Code of Origin</span><span class="st">`</span>, <span class="dv">1</span>, <span class="dv">1</span>) <span class="sc">==</span> <span class="dv">4</span> <span class="sc">~</span> <span class="st">&quot;Latin America &amp; Caribbean&quot;</span>,</span>
-<span id="cb8-8"><a href="data-transformation.html#cb8-8" aria-hidden="true" tabindex="-1"></a>                                <span class="fu">substring</span>(<span class="st">`</span><span class="at">Code of Origin</span><span class="st">`</span>, <span class="dv">1</span>, <span class="dv">1</span>) <span class="sc">==</span> <span class="dv">5</span> <span class="sc">~</span> <span class="st">&quot;Middle East&quot;</span>,</span>
-<span id="cb8-9"><a href="data-transformation.html#cb8-9" aria-hidden="true" tabindex="-1"></a>                                <span class="fu">substring</span>(<span class="st">`</span><span class="at">Code of Origin</span><span class="st">`</span>, <span class="dv">1</span>, <span class="dv">1</span>) <span class="sc">==</span> <span class="dv">6</span> <span class="sc">~</span> <span class="st">&quot;North America&quot;</span>,</span>
-<span id="cb8-10"><a href="data-transformation.html#cb8-10" aria-hidden="true" tabindex="-1"></a>                                <span class="fu">substring</span>(<span class="st">`</span><span class="at">Code of Origin</span><span class="st">`</span>, <span class="dv">1</span>, <span class="dv">1</span>) <span class="sc">==</span> <span class="dv">7</span> <span class="sc">~</span> <span class="st">&quot;Oceania&quot;</span>,</span>
-<span id="cb8-11"><a href="data-transformation.html#cb8-11" aria-hidden="true" tabindex="-1"></a>                                <span class="st">`</span><span class="at">Place of Origin</span><span class="st">`</span> <span class="sc">==</span> <span class="st">&quot;Stateless&quot;</span> <span class="sc">~</span> <span class="st">&quot;Unknown State&quot;</span></span>
-<span id="cb8-12"><a href="data-transformation.html#cb8-12" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb8-13"><a href="data-transformation.html#cb8-13" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb8-14"><a href="data-transformation.html#cb8-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-15"><a href="data-transformation.html#cb8-15" aria-hidden="true" tabindex="-1"></a>projdata.re.state[projdata.re.state<span class="sc">$</span><span class="st">`</span><span class="at">Place of Origin</span><span class="st">`</span> </span>
-<span id="cb8-16"><a href="data-transformation.html#cb8-16" aria-hidden="true" tabindex="-1"></a>                  <span class="sc">==</span> <span class="st">&quot;Bermuda&quot;</span>,]<span class="sc">$</span>Continents <span class="ot">&lt;-</span> <span class="st">&quot;Latin America &amp; Caribbean&quot;</span></span>
-<span id="cb8-17"><a href="data-transformation.html#cb8-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-18"><a href="data-transformation.html#cb8-18" aria-hidden="true" tabindex="-1"></a>temp.data <span class="ot">&lt;-</span> projdata.re.state <span class="sc">%&gt;%</span></span>
-<span id="cb8-19"><a href="data-transformation.html#cb8-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">grepl</span>(<span class="st">&quot;[0-9]999&quot;</span>, <span class="st">`</span><span class="at">Code of Origin</span><span class="st">`</span>) <span class="sc">|</span> <span class="fu">is.na</span>(<span class="st">`</span><span class="at">Code of Origin</span><span class="st">`</span>))</span>
-<span id="cb8-20"><a href="data-transformation.html#cb8-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-21"><a href="data-transformation.html#cb8-21" aria-hidden="true" tabindex="-1"></a>temp.data.unsp <span class="ot">&lt;-</span> temp.data <span class="sc">%&gt;%</span></span>
-<span id="cb8-22"><a href="data-transformation.html#cb8-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">grepl</span>(<span class="st">&quot;Unspecified&quot;</span>,<span class="st">`</span><span class="at">Place of Origin</span><span class="st">`</span>) ) <span class="sc">%&gt;%</span></span>
-<span id="cb8-23"><a href="data-transformation.html#cb8-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Continents =</span> <span class="fu">case_when</span>(<span class="fu">grepl</span>(<span class="st">&quot;Africa&quot;</span>,<span class="st">`</span><span class="at">Place of Origin</span><span class="st">`</span>) <span class="sc">~</span> <span class="st">&quot;Africa&quot;</span>,</span>
-<span id="cb8-24"><a href="data-transformation.html#cb8-24" aria-hidden="true" tabindex="-1"></a>                                <span class="fu">grepl</span>(<span class="st">&quot;Asia&quot;</span>,<span class="st">`</span><span class="at">Place of Origin</span><span class="st">`</span>) <span class="sc">~</span> <span class="st">&quot;Asia&quot;</span>,</span>
-<span id="cb8-25"><a href="data-transformation.html#cb8-25" aria-hidden="true" tabindex="-1"></a>                                <span class="fu">grepl</span>(<span class="st">&quot;Europe&quot;</span>,<span class="st">`</span><span class="at">Place of Origin</span><span class="st">`</span>) <span class="sc">~</span> <span class="st">&quot;Europe&quot;</span>,</span>
-<span id="cb8-26"><a href="data-transformation.html#cb8-26" aria-hidden="true" tabindex="-1"></a>                                <span class="fu">grepl</span>(<span class="st">&quot;Latin America &amp; Caribbean&quot;</span>,<span class="st">`</span><span class="at">Place of Origin</span><span class="st">`</span>) <span class="sc">~</span> <span class="st">&quot;Latin America &amp; Caribbean&quot;</span>,</span>
-<span id="cb8-27"><a href="data-transformation.html#cb8-27" aria-hidden="true" tabindex="-1"></a>                                <span class="fu">grepl</span>(<span class="st">&quot;South America&quot;</span>,<span class="st">`</span><span class="at">Place of Origin</span><span class="st">`</span>) <span class="sc">~</span> <span class="st">&quot;Latin America &amp; Caribbean&quot;</span>,</span>
-<span id="cb8-28"><a href="data-transformation.html#cb8-28" aria-hidden="true" tabindex="-1"></a>                                <span class="fu">grepl</span>(<span class="st">&quot;Caribbean&quot;</span>,<span class="st">`</span><span class="at">Place of Origin</span><span class="st">`</span>) <span class="sc">~</span> <span class="st">&quot;Latin America &amp; Caribbean&quot;</span>,</span>
-<span id="cb8-29"><a href="data-transformation.html#cb8-29" aria-hidden="true" tabindex="-1"></a>                                <span class="fu">grepl</span>(<span class="st">&quot;Mexico&quot;</span>,<span class="st">`</span><span class="at">Place of Origin</span><span class="st">`</span>) <span class="sc">~</span> <span class="st">&quot;Latin America &amp; Caribbean&quot;</span>,</span>
-<span id="cb8-30"><a href="data-transformation.html#cb8-30" aria-hidden="true" tabindex="-1"></a>                                <span class="fu">grepl</span>(<span class="st">&quot;Middle East&quot;</span>,<span class="st">`</span><span class="at">Place of Origin</span><span class="st">`</span>) <span class="sc">~</span> <span class="st">&quot;Middle East&quot;</span>,</span>
-<span id="cb8-31"><a href="data-transformation.html#cb8-31" aria-hidden="true" tabindex="-1"></a>                                <span class="fu">grepl</span>(<span class="st">&quot;North America&quot;</span>,<span class="st">`</span><span class="at">Place of Origin</span><span class="st">`</span>) <span class="sc">~</span> <span class="st">&quot;North America&quot;</span>,</span>
-<span id="cb8-32"><a href="data-transformation.html#cb8-32" aria-hidden="true" tabindex="-1"></a>                                <span class="fu">grepl</span>(<span class="st">&quot;Pacific&quot;</span>,<span class="st">`</span><span class="at">Place of Origin</span><span class="st">`</span>) <span class="sc">~</span> <span class="st">&quot;Oceania&quot;</span></span>
-<span id="cb8-33"><a href="data-transformation.html#cb8-33" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb8-34"><a href="data-transformation.html#cb8-34" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb8-35"><a href="data-transformation.html#cb8-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Continents) <span class="sc">%&gt;%</span></span>
-<span id="cb8-36"><a href="data-transformation.html#cb8-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(.,<span class="fu">across</span>(<span class="fu">where</span>(is.numeric), <span class="sc">~</span><span class="fu">sum</span>(.x, <span class="at">na.rm =</span> T))) <span class="sc">%&gt;%</span></span>
-<span id="cb8-37"><a href="data-transformation.html#cb8-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="st">`</span><span class="at">Place of Origin</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">paste</span>(Continents, <span class="st">&quot;Unspecified&quot;</span>, <span class="at">sep =</span> <span class="st">&quot;, &quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb8-38"><a href="data-transformation.html#cb8-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="st">`</span><span class="at">Place of Origin</span><span class="st">`</span>, <span class="st">`</span><span class="at">Code of Origin</span><span class="st">`</span>, <span class="st">`</span><span class="at">1949/50</span><span class="st">`</span><span class="sc">:</span><span class="st">`</span><span class="at">2020/21</span><span class="st">`</span>, Continents)</span>
-<span id="cb8-39"><a href="data-transformation.html#cb8-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-40"><a href="data-transformation.html#cb8-40" aria-hidden="true" tabindex="-1"></a>temp.data.fna <span class="ot">&lt;-</span> temp.data  <span class="sc">%&gt;%</span></span>
-<span id="cb8-41"><a href="data-transformation.html#cb8-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">grepl</span>(<span class="st">&quot;Unspecified&quot;</span>,<span class="st">`</span><span class="at">Place of Origin</span><span class="st">`</span>) ) <span class="sc">%&gt;%</span></span>
-<span id="cb8-42"><a href="data-transformation.html#cb8-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Continents =</span> <span class="fu">case_when</span>(<span class="fu">grepl</span>(<span class="st">&quot;Former&quot;</span>,<span class="st">`</span><span class="at">Place of Origin</span><span class="st">`</span>) <span class="sc">~</span> <span class="st">&quot;Europe&quot;</span>,</span>
-<span id="cb8-43"><a href="data-transformation.html#cb8-43" aria-hidden="true" tabindex="-1"></a>                                <span class="fu">grepl</span>(<span class="st">&quot;Serbia&quot;</span>,<span class="st">`</span><span class="at">Place of Origin</span><span class="st">`</span>) <span class="sc">~</span> <span class="st">&quot;Europe&quot;</span>,</span>
-<span id="cb8-44"><a href="data-transformation.html#cb8-44" aria-hidden="true" tabindex="-1"></a>                                <span class="fu">grepl</span>(<span class="st">&quot;Antilles&quot;</span>,<span class="st">`</span><span class="at">Place of Origin</span><span class="st">`</span>) <span class="sc">~</span> <span class="st">&quot;Latin America &amp; Caribbean&quot;</span>,</span>
-<span id="cb8-45"><a href="data-transformation.html#cb8-45" aria-hidden="true" tabindex="-1"></a>                                <span class="fu">grepl</span>(<span class="st">&quot;Sahara&quot;</span>,<span class="st">`</span><span class="at">Place of Origin</span><span class="st">`</span>) <span class="sc">~</span> <span class="st">&quot;Africa&quot;</span></span>
-<span id="cb8-46"><a href="data-transformation.html#cb8-46" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb8-47"><a href="data-transformation.html#cb8-47" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<p>We also grouped the Unspecified countries/regions to unspecified eight continents to facilitate future analysis. And since the <code>Code of Origin</code> give two of the Unspecified code, so we follow the rule and fill it by four digit number end with “999”.</p>
+<table>
+<caption><span id="tab:unnamed-chunk-11">Table 3.3: </span>A table of Unspecified data.</caption>
+<colgroup>
+<col width="55%" />
+<col width="21%" />
+<col width="11%" />
+<col width="11%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Place of Origin</th>
+<th align="right">Code of Origin</th>
+<th align="right">1949/50</th>
+<th align="right">1954/55</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Africa, Unspecified</td>
+<td align="right">1999</td>
+<td align="right">19</td>
+<td align="right">3</td>
+</tr>
+<tr class="even">
+<td align="left">Asia, Unspecified</td>
+<td align="right">2999</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">Europe, Unspecified</td>
+<td align="right">3999</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Latin America &amp; Caribbean, Unspecified</td>
+<td align="right">4999</td>
+<td align="right">173</td>
+<td align="right">60</td>
+</tr>
+<tr class="odd">
+<td align="left">Middle East, Unspecified</td>
+<td align="right">5999</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+</tr>
+<tr class="even">
+<td align="left">Oceania, Unspecified</td>
+<td align="right">7999</td>
+<td align="right">NA</td>
+<td align="right">15</td>
+</tr>
+</tbody>
+</table>
+<p><br></p>
+<p>For the detail of code, please go to: <a href="https://github.com/MISSZH0U/international_students_inUS/blob/main/03-cleaning.Rmd">03-cleaning.Rmd</a></p>
+<p><br></p>
 </div>
 </div>
 <div id="data-use-for-next-few-parts" class="section level2 hasAnchor" number="3.3">
 <h2><span class="header-section-number">3.3</span> Data use for next few parts<a href="data-transformation.html#data-use-for-next-few-parts" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>We combine the unspecified Continents data to grouped data, and get the final data set we will use for analysis.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="data-transformation.html#cb9-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> projdata.re.state <span class="sc">%&gt;%</span></span>
-<span id="cb9-2"><a href="data-transformation.html#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">grepl</span>(<span class="st">&quot;Unspecified&quot;</span>,<span class="st">`</span><span class="at">Place of Origin</span><span class="st">`</span>) ) <span class="sc">%&gt;%</span></span>
-<span id="cb9-3"><a href="data-transformation.html#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rows_update</span>(temp.data.fna, <span class="at">by =</span> <span class="st">&quot;Place of Origin&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb9-4"><a href="data-transformation.html#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rbind</span>(., temp.data.unsp)</span>
-<span id="cb9-5"><a href="data-transformation.html#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-6"><a href="data-transformation.html#cb9-6" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
-<span id="cb9-7"><a href="data-transformation.html#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(df[, <span class="dv">1</span><span class="sc">:</span><span class="dv">8</span>], <span class="dv">6</span>), <span class="at">booktabs =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb9-8"><a href="data-transformation.html#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">&#39;A table of the first 6 rows of data ready for use in the future analysis.&#39;</span></span>
-<span id="cb9-9"><a href="data-transformation.html#cb9-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
+<p>Now, this is the last step.
+We combine the unspecified Continents data to grouped data, and get the final data set we will use for analysis.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="data-transformation.html#cb7-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> projdata.re.state <span class="sc">%&gt;%</span></span>
+<span id="cb7-2"><a href="data-transformation.html#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">grepl</span>(<span class="st">&quot;Unspecified&quot;</span>,<span class="st">`</span><span class="at">Place of Origin</span><span class="st">`</span>) ) <span class="sc">%&gt;%</span></span>
+<span id="cb7-3"><a href="data-transformation.html#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rows_update</span>(temp.data.fna, <span class="at">by =</span> <span class="st">&quot;Place of Origin&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-4"><a href="data-transformation.html#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rbind</span>(., temp.data.unsp)</span></code></pre></div>
 <table style="width:100%;">
-<caption><span id="tab:unnamed-chunk-9">Table 3.3: </span>A table of the first 6 rows of data ready for use in the future analysis.</caption>
+<caption><span id="tab:unnamed-chunk-13">Table 3.4: </span>A table of the first 6 rows of data ready for use in the future analysis.</caption>
 <colgroup>
 <col width="20%" />
 <col width="18%" />
@@ -504,6 +499,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </tr>
 </tbody>
 </table>
+<p>Now this table will have this:</p>
+<p><code>Place of Origin</code>: Including Places on country or region level, Unspecified is based on Continents level;</p>
+<p><code>Code of Origin</code>: Code of Place, some place and former country have missing value;</p>
+<p>Academic Years: <code>1949/50</code> to <code>2020/21</code>, but the years before the 21st century were inconsistent;</p>
+<p><code>Continents</code>: Added group, based this eight categories: Africa, Asia, Europe, Latin America &amp; Caribbean, Middle East, North America, Oceania and Unknown State.</p>
 <p><br></p>
 <p>In next chapter, we will discuss the missing values of our data.</p>
 

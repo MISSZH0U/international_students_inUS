@@ -23,7 +23,7 @@
 <meta name="author" content="Jiayuan Zhou, Wenqi Yu" />
 
 
-<meta name="date" content="2022-05-02" />
+<meta name="date" content="2022-05-03" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -150,7 +150,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </ul></li>
 <li class="chapter" data-level="4" data-path="missing-values.html"><a href="missing-values.html"><i class="fa fa-check"></i><b>4</b> Missing values</a>
 <ul>
-<li class="chapter" data-level="4.1" data-path="missing-values.html"><a href="missing-values.html#still-working-on-comments"><i class="fa fa-check"></i><b>4.1</b> still working on comments</a></li>
+<li class="chapter" data-level="4.1" data-path="missing-values.html"><a href="missing-values.html#na-shows-in-different-groups-by-column"><i class="fa fa-check"></i><b>4.1</b> NA shows in different groups by column</a></li>
+<li class="chapter" data-level="4.2" data-path="missing-values.html"><a href="missing-values.html#total-number-of-missing-values-by-column"><i class="fa fa-check"></i><b>4.2</b> Total number of missing values by column</a></li>
 </ul></li>
 <li class="chapter" data-level="5" data-path="results.html"><a href="results.html"><i class="fa fa-check"></i><b>5</b> Results</a></li>
 <li class="chapter" data-level="6" data-path="interactive-component.html"><a href="interactive-component.html"><i class="fa fa-check"></i><b>6</b> Interactive component</a></li>
@@ -176,87 +177,66 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
             <section class="normal" id="section-">
 <div id="missing-values" class="section level1 hasAnchor" number="4">
 <h1><span class="header-section-number">Chapter 4</span> Missing values<a href="missing-values.html#missing-values" class="anchor-section" aria-label="Anchor link to header"></a></h1>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="missing-values.html#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(redav)</span></code></pre></div>
-<div id="still-working-on-comments" class="section level2 hasAnchor" number="4.1">
-<h2><span class="header-section-number">4.1</span> still working on comments<a href="missing-values.html#still-working-on-comments" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="missing-values.html#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># find which continents do not have na values</span></span>
-<span id="cb2-2"><a href="missing-values.html#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="missing-values.html#cb2-3" aria-hidden="true" tabindex="-1"></a>df.nabygroup <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span></span>
-<span id="cb2-4"><a href="missing-values.html#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Continents) <span class="sc">%&gt;%</span></span>
-<span id="cb2-5"><a href="missing-values.html#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize_all</span>(<span class="at">.funs =</span> <span class="fu">funs</span>(<span class="st">&#39;NA&#39;</span> <span class="ot">=</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(.))))</span>
-<span id="cb2-6"><a href="missing-values.html#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="missing-values.html#cb2-7" aria-hidden="true" tabindex="-1"></a>non.na.index <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="fu">rowSums</span>(df.nabygroup[<span class="dv">2</span><span class="sc">:</span><span class="fu">ncol</span>(df.nabygroup)]) <span class="sc">==</span> <span class="dv">0</span>)</span>
-<span id="cb2-8"><a href="missing-values.html#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-9"><a href="missing-values.html#cb2-9" aria-hidden="true" tabindex="-1"></a>Continents.non.na <span class="ot">&lt;-</span> df.nabygroup[non.na.index,<span class="dv">1</span>]</span>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="missing-values.html#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-2"><a href="missing-values.html#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggpubr)</span></code></pre></div>
+<div id="na-shows-in-different-groups-by-column" class="section level2 hasAnchor" number="4.1">
+<h2><span class="header-section-number">4.1</span> NA shows in different groups by column<a href="missing-values.html#na-shows-in-different-groups-by-column" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Because we have many rows in our data, but they can be classified according to Continents. Therefore, we first look at whether they have missing values in each column based on Continents.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="missing-values.html#cb2-1" aria-hidden="true" tabindex="-1"></a>df.nabygroup <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span></span>
+<span id="cb2-2"><a href="missing-values.html#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(Continents) <span class="sc">%&gt;%</span></span>
+<span id="cb2-3"><a href="missing-values.html#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize_all</span>(<span class="at">.funs =</span> <span class="fu">funs</span>(<span class="st">&#39;NA&#39;</span> <span class="ot">=</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(.)))) <span class="sc">%&gt;%</span></span>
+<span id="cb2-4"><a href="missing-values.html#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setNames</span>(.,<span class="fu">c</span>(<span class="st">&quot;Cont&#39;s&quot;</span>,<span class="st">&quot;Place&quot;</span>,<span class="st">&quot;Code&quot;</span>, <span class="fu">substring</span>(<span class="fu">colnames</span>(.)[<span class="dv">4</span><span class="sc">:</span><span class="dv">35</span>], <span class="dv">1</span>, <span class="dv">7</span>)))</span>
+<span id="cb2-5"><a href="missing-values.html#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="missing-values.html#cb2-6" aria-hidden="true" tabindex="-1"></a>tidydata <span class="ot">&lt;-</span> df.nabygroup  <span class="sc">%&gt;%</span></span>
+<span id="cb2-7"><a href="missing-values.html#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rownames_to_column</span>(<span class="st">&quot;id&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb2-8"><a href="missing-values.html#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">gather</span>(key, value, <span class="sc">-</span>id) <span class="sc">%&gt;%</span></span>
+<span id="cb2-9"><a href="missing-values.html#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">missing =</span> <span class="fu">ifelse</span>(value <span class="sc">==</span> <span class="dv">0</span> <span class="sc">|</span> key <span class="sc">==</span> <span class="st">&quot;Cont&#39;s&quot;</span>, <span class="st">&quot;no&quot;</span>, <span class="st">&quot;yes&quot;</span>))</span>
 <span id="cb2-10"><a href="missing-values.html#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-11"><a href="missing-values.html#cb2-11" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(</span>
-<span id="cb2-12"><a href="missing-values.html#cb2-12" aria-hidden="true" tabindex="-1"></a>  Continents.non.na, <span class="at">booktabs =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb2-13"><a href="missing-values.html#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">&#39;A table of the first 4 rows of our final project data.&#39;</span></span>
-<span id="cb2-14"><a href="missing-values.html#cb2-14" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div>
-<table>
-<caption><span id="tab:unnamed-chunk-8">Table 4.1: </span>A table of the first 4 rows of our final project data.</caption>
-<thead>
-<tr class="header">
-<th align="left">Continents</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">North America</td>
-</tr>
-<tr class="even">
-<td align="left">Unknown State</td>
-</tr>
-</tbody>
-</table>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="missing-values.html#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># draw NA pattern</span></span>
-<span id="cb3-2"><a href="missing-values.html#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># rownames(df) &lt;- df$`Place of Origin`</span></span>
-<span id="cb3-3"><a href="missing-values.html#cb3-3" aria-hidden="true" tabindex="-1"></a>states <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span></span>
-<span id="cb3-4"><a href="missing-values.html#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">setNames</span>(.,<span class="fu">c</span>(<span class="st">&quot;name&quot;</span>,<span class="st">&quot;code&quot;</span>, <span class="fu">substring</span>(<span class="fu">colnames</span>(.)[<span class="dv">3</span><span class="sc">:</span><span class="dv">34</span>], <span class="dv">1</span>, <span class="dv">4</span>),<span class="st">&quot;Continents&quot;</span>))</span>
-<span id="cb3-5"><a href="missing-values.html#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-6"><a href="missing-values.html#cb3-6" aria-hidden="true" tabindex="-1"></a>tidydata <span class="ot">&lt;-</span> states[<span class="dv">2</span><span class="sc">:</span><span class="fu">ncol</span>(states)<span class="sc">-</span><span class="dv">1</span>] <span class="sc">%&gt;%</span></span>
-<span id="cb3-7"><a href="missing-values.html#cb3-7" aria-hidden="true" tabindex="-1"></a>      <span class="fu">rownames_to_column</span>(<span class="st">&quot;id&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb3-8"><a href="missing-values.html#cb3-8" aria-hidden="true" tabindex="-1"></a>      <span class="fu">gather</span>(key, value, <span class="sc">-</span>id) <span class="sc">%&gt;%</span></span>
-<span id="cb3-9"><a href="missing-values.html#cb3-9" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(<span class="at">missing =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(value), <span class="st">&quot;yes&quot;</span>, <span class="st">&quot;no&quot;</span>))</span>
-<span id="cb3-10"><a href="missing-values.html#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-11"><a href="missing-values.html#cb3-11" aria-hidden="true" tabindex="-1"></a>missing <span class="ot">&lt;-</span> tidydata <span class="sc">%&gt;%</span> </span>
-<span id="cb3-12"><a href="missing-values.html#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(key) <span class="sc">%&gt;%</span> </span>
-<span id="cb3-13"><a href="missing-values.html#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="at">sum.na =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(value)))</span>
-<span id="cb3-14"><a href="missing-values.html#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-15"><a href="missing-values.html#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(missing, <span class="fu">aes</span>(<span class="at">x =</span> <span class="dv">2</span><span class="sc">:</span><span class="fu">ncol</span>(states)<span class="sc">-</span><span class="dv">1</span>, <span class="at">y =</span> sum.na)) <span class="sc">+</span></span>
-<span id="cb3-16"><a href="missing-values.html#cb3-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">color =</span> <span class="st">&quot;blue&quot;</span>, <span class="at">fill =</span> <span class="st">&quot;lightblue&quot;</span>) <span class="sc">+</span></span>
-<span id="cb3-17"><a href="missing-values.html#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="dv">2</span><span class="sc">:</span><span class="fu">ncol</span>(states)<span class="sc">-</span><span class="dv">1</span>, <span class="at">labels =</span> missing<span class="sc">$</span>key) <span class="sc">+</span></span>
-<span id="cb3-18"><a href="missing-values.html#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;Number of missing values by years&quot;</span>) <span class="sc">+</span></span>
-<span id="cb3-19"><a href="missing-values.html#cb3-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;&quot;</span>) <span class="sc">+</span></span>
-<span id="cb3-20"><a href="missing-values.html#cb3-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;Number of total missing values&quot;</span>) <span class="sc">+</span></span>
-<span id="cb3-21"><a href="missing-values.html#cb3-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">90</span>))</span></code></pre></div>
-<p><img src="finalproj_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="missing-values.html#cb4-1" aria-hidden="true" tabindex="-1"></a>states2 <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span></span>
-<span id="cb4-2"><a href="missing-values.html#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setNames</span>(.,<span class="fu">c</span>(<span class="st">&quot;name&quot;</span>,<span class="st">&quot;code&quot;</span>, <span class="fu">substring</span>(<span class="fu">colnames</span>(.)[<span class="dv">3</span><span class="sc">:</span><span class="dv">34</span>], <span class="dv">6</span>, <span class="dv">7</span>),<span class="st">&quot;Cont.&quot;</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb4-3"><a href="missing-values.html#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(<span class="st">&quot;name&quot;</span>,<span class="st">&quot;code&quot;</span>, <span class="st">&quot;50&quot;</span><span class="sc">:</span><span class="st">&quot;95&quot;</span>, <span class="st">&quot;Cont.&quot;</span>)</span>
-<span id="cb4-4"><a href="missing-values.html#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-5"><a href="missing-values.html#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(states2) <span class="ot">&lt;-</span> states2<span class="sc">$</span>name</span>
-<span id="cb4-6"><a href="missing-values.html#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-7"><a href="missing-values.html#cb4-7" aria-hidden="true" tabindex="-1"></a>states.na <span class="ot">&lt;-</span> states2 <span class="sc">%&gt;%</span></span>
-<span id="cb4-8"><a href="missing-values.html#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(Cont. <span class="sc">==</span> <span class="st">&quot;Asia&quot;</span>) </span>
-<span id="cb4-9"><a href="missing-values.html#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-10"><a href="missing-values.html#cb4-10" aria-hidden="true" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">rowSums</span>(<span class="fu">is.na</span>(states.na)) <span class="sc">%&gt;%</span></span>
-<span id="cb4-11"><a href="missing-values.html#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sort</span>(<span class="at">decreasing =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb4-12"><a href="missing-values.html#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-13"><a href="missing-values.html#cb4-13" aria-hidden="true" tabindex="-1"></a>tidydata <span class="ot">&lt;-</span> states.na <span class="sc">%&gt;%</span></span>
-<span id="cb4-14"><a href="missing-values.html#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>( name <span class="sc">%in%</span> <span class="fu">names</span>(result[result <span class="sc">!=</span> <span class="dv">0</span>]) ) <span class="sc">%&gt;%</span></span>
-<span id="cb4-15"><a href="missing-values.html#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rownames_to_column</span>(<span class="st">&quot;id&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb4-16"><a href="missing-values.html#cb4-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">gather</span>(key, value, <span class="sc">-</span>id) <span class="sc">%&gt;%</span></span>
-<span id="cb4-17"><a href="missing-values.html#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">missing =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(value), <span class="st">&quot;yes&quot;</span>, <span class="st">&quot;no&quot;</span>))</span>
-<span id="cb4-18"><a href="missing-values.html#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-19"><a href="missing-values.html#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(tidydata, <span class="fu">aes</span>(<span class="at">x =</span> key, <span class="at">y =</span> <span class="fu">fct_rev</span>(id), <span class="at">fill =</span> missing)) <span class="sc">+</span></span>
-<span id="cb4-20"><a href="missing-values.html#cb4-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_tile</span>(<span class="at">color =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span></span>
-<span id="cb4-21"><a href="missing-values.html#cb4-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;Place has NA value in Asia&quot;</span>) <span class="sc">+</span></span>
-<span id="cb4-22"><a href="missing-values.html#cb4-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;Places&quot;</span>) <span class="sc">+</span></span>
-<span id="cb4-23"><a href="missing-values.html#cb4-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;columns&quot;</span>) <span class="sc">+</span></span>
-<span id="cb4-24"><a href="missing-values.html#cb4-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_d</span>(<span class="at">option =</span> <span class="st">&quot;inferno&quot;</span>) <span class="sc">+</span></span>
-<span id="cb4-25"><a href="missing-values.html#cb4-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code></pre></div>
-<p><img src="finalproj_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<span id="cb2-11"><a href="missing-values.html#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(tidydata, <span class="fu">aes</span>(<span class="at">x =</span> key, <span class="at">y =</span> <span class="fu">fct_rev</span>(id), <span class="at">fill =</span> missing)) <span class="sc">+</span></span>
+<span id="cb2-12"><a href="missing-values.html#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_tile</span>(<span class="at">color =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span></span>
+<span id="cb2-13"><a href="missing-values.html#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;NA value in Continents during the 20th century&quot;</span>) <span class="sc">+</span></span>
+<span id="cb2-14"><a href="missing-values.html#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;Continents&quot;</span>) <span class="sc">+</span></span>
+<span id="cb2-15"><a href="missing-values.html#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;columns&quot;</span>) <span class="sc">+</span></span>
+<span id="cb2-16"><a href="missing-values.html#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;lightgrey&quot;</span>, <span class="st">&quot;#153E7E&quot;</span>)) <span class="sc">+</span></span>
+<span id="cb2-17"><a href="missing-values.html#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span> </span>
+<span id="cb2-18"><a href="missing-values.html#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">90</span>)) <span class="sc">+</span> </span>
+<span id="cb2-19"><a href="missing-values.html#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_discrete</span>(<span class="at">labels =</span> <span class="fu">c</span>( <span class="st">&quot;Unknown State&quot;</span>, <span class="st">&quot;Oceania&quot;</span>,</span>
+<span id="cb2-20"><a href="missing-values.html#cb2-20" aria-hidden="true" tabindex="-1"></a>                               <span class="st">&quot;North America&quot;</span>,<span class="st">&quot;Middle East&quot;</span>, </span>
+<span id="cb2-21"><a href="missing-values.html#cb2-21" aria-hidden="true" tabindex="-1"></a>                               <span class="st">&quot;Latin America &amp; Caribbean&quot;</span>,</span>
+<span id="cb2-22"><a href="missing-values.html#cb2-22" aria-hidden="true" tabindex="-1"></a>                               <span class="st">&quot;Europe&quot;</span>,  <span class="st">&quot;Asia&quot;</span>,<span class="st">&quot;Africa&quot;</span></span>
+<span id="cb2-23"><a href="missing-values.html#cb2-23" aria-hidden="true" tabindex="-1"></a>                              ))</span></code></pre></div>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-8-1.png" width="672" />
+Based on this plot, we can find that among the eight continents, North America and the unknown states have no missing values for so many years in the past statistics, and Africa, Europe, and Latin America &amp; the Caribbean have missing values in every academic year. And as a major source of international students in the United States, Asia has no missing value since the 21st century — The same trend is seen in the Middle East and Oceania.</p>
+<p><br></p>
+</div>
+<div id="total-number-of-missing-values-by-column" class="section level2 hasAnchor" number="4.2">
+<h2><span class="header-section-number">4.2</span> Total number of missing values by column<a href="missing-values.html#total-number-of-missing-values-by-column" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="missing-values.html#cb3-1" aria-hidden="true" tabindex="-1"></a>states <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span></span>
+<span id="cb3-2"><a href="missing-values.html#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">setNames</span>(.,<span class="fu">c</span>(<span class="st">&quot;Place&quot;</span>,<span class="st">&quot;Code&quot;</span>, <span class="fu">colnames</span>(.)[<span class="dv">3</span><span class="sc">:</span><span class="dv">34</span>],<span class="st">&quot;Cont&#39;s&quot;</span>))</span>
+<span id="cb3-3"><a href="missing-values.html#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="missing-values.html#cb3-4" aria-hidden="true" tabindex="-1"></a>tidydata <span class="ot">&lt;-</span> states[<span class="dv">2</span><span class="sc">:</span><span class="fu">ncol</span>(states)<span class="sc">-</span><span class="dv">1</span>] <span class="sc">%&gt;%</span></span>
+<span id="cb3-5"><a href="missing-values.html#cb3-5" aria-hidden="true" tabindex="-1"></a>      <span class="fu">rownames_to_column</span>(<span class="st">&quot;id&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb3-6"><a href="missing-values.html#cb3-6" aria-hidden="true" tabindex="-1"></a>      <span class="fu">gather</span>(key, value, <span class="sc">-</span>id) <span class="sc">%&gt;%</span></span>
+<span id="cb3-7"><a href="missing-values.html#cb3-7" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>(<span class="at">missing =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(value), <span class="st">&quot;yes&quot;</span>, <span class="st">&quot;no&quot;</span>))</span>
+<span id="cb3-8"><a href="missing-values.html#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="missing-values.html#cb3-9" aria-hidden="true" tabindex="-1"></a>missing <span class="ot">&lt;-</span> tidydata <span class="sc">%&gt;%</span> </span>
+<span id="cb3-10"><a href="missing-values.html#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(key) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-11"><a href="missing-values.html#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="at">sum.na =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(value)))</span>
+<span id="cb3-12"><a href="missing-values.html#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="missing-values.html#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(missing, <span class="fu">aes</span>(<span class="at">x =</span> <span class="dv">2</span><span class="sc">:</span><span class="fu">ncol</span>(states)<span class="sc">-</span><span class="dv">1</span>, <span class="at">y =</span> sum.na)) <span class="sc">+</span></span>
+<span id="cb3-14"><a href="missing-values.html#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">color =</span> <span class="st">&quot;#142b73&quot;</span>, <span class="at">fill =</span> <span class="st">&quot;#153E7E&quot;</span>) <span class="sc">+</span></span>
+<span id="cb3-15"><a href="missing-values.html#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="dv">2</span><span class="sc">:</span><span class="fu">ncol</span>(states)<span class="sc">-</span><span class="dv">1</span>, <span class="at">labels =</span> missing<span class="sc">$</span>key) <span class="sc">+</span></span>
+<span id="cb3-16"><a href="missing-values.html#cb3-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">&quot;Total number of missing values by column&quot;</span>) <span class="sc">+</span></span>
+<span id="cb3-17"><a href="missing-values.html#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">&quot;&quot;</span>) <span class="sc">+</span></span>
+<span id="cb3-18"><a href="missing-values.html#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">&quot;Number of total missing values&quot;</span>) <span class="sc">+</span></span>
+<span id="cb3-19"><a href="missing-values.html#cb3-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">90</span>))</span></code></pre></div>
+<p><img src="finalproj_files/figure-html/unnamed-chunk-9-1.png" width="672" />
+<br></p>
+<p>Based on this figure, we can find that: as time goes on, each column has fewer and fewer missing values and enters the 21st century with very small and relatively smooth data.</p>
+<p>Some of the <code>Code of Origin</code> also have missing values, as they are unable to identify by the source of data.</p>
+<p><br></p>
+<p><strong>Notes</strong>: Before the 21st century, data were recorded every five years, and after 2000, data were recorded annually. Between considering the statistical difficulties due to the low level of technology at that time, we did not consider the data that were not recorded in the 20th century as missing value in this part.</p>
+<p><br></p>
 
 </div>
 </div>

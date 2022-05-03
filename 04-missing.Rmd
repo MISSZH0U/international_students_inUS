@@ -8,14 +8,14 @@ options(width = 200)
 ```{r, message=FALSE, include=FALSE}
 library(readxl)
 library(tidyverse)
-library(ggplot2)
 library(stringr)
+```
+
+```{r, message=FALSE}
+library(ggplot2)
 library(ggpubr)
 ```
 
-```{r}
-library(redav)
-```
 
 ```{r,include=FALSE}
 projdata <- read_excel("Census_All-Places-of-Origin_OD21.xlsx", 
@@ -79,6 +79,11 @@ temp.data.unsp <- temp.data %>%
   mutate(`Place of Origin` = paste(Continents, "Unspecified", sep = ", ")) %>%
   select(`Place of Origin`, `Code of Origin`, `1949/50`:`2020/21`, Continents)
 
+temp.data.unsp[temp.data.unsp$`Place of Origin` == "Africa, Unspecified",]$`Code of Origin` <- 1999
+temp.data.unsp[temp.data.unsp$`Place of Origin` == "Asia, Unspecified",]$`Code of Origin` <- 2999
+temp.data.unsp[temp.data.unsp$`Place of Origin` == "Middle East, Unspecified",]$`Code of Origin` <- 5999
+temp.data.unsp[temp.data.unsp$`Place of Origin` == "Oceania, Unspecified",]$`Code of Origin` <- 7999
+
 temp.data.fna <- temp.data  %>%
   filter(!grepl("Unspecified",`Place of Origin`) ) %>%
   mutate(Continents = case_when(grepl("Former",`Place of Origin`) ~ "Europe",
@@ -88,6 +93,7 @@ temp.data.fna <- temp.data  %>%
   )
   )
 
+
 df <- projdata.re.state %>%
   filter(!grepl("Unspecified",`Place of Origin`) ) %>%
   rows_update(temp.data.fna, by = "Place of Origin") %>%
@@ -95,30 +101,44 @@ df <- projdata.re.state %>%
 ```
 
 
-## still working on comments
-```{r}
-# find which continents do not have na values
+## NA shows in different groups by column
 
+Because we have many rows in our data, but they can be classified according to Continents. Therefore, we first look at whether they have missing values in each column based on Continents.
+
+```{r, warning=FALSE}
 df.nabygroup <- df %>%
   group_by(Continents) %>%
-  summarize_all(.funs = funs('NA' = sum(is.na(.))))
+  summarize_all(.funs = funs('NA' = sum(is.na(.)))) %>%
+  setNames(.,c("Cont's","Place","Code", substring(colnames(.)[4:35], 1, 7)))
 
-non.na.index <- which(rowSums(df.nabygroup[2:ncol(df.nabygroup)]) == 0)
+tidydata <- df.nabygroup  %>%
+    rownames_to_column("id") %>%
+    gather(key, value, -id) %>%
+    mutate(missing = ifelse(value == 0 | key == "Cont's", "no", "yes"))
 
-Continents.non.na <- df.nabygroup[non.na.index,1]
-
-knitr::kable(
-  Continents.non.na, booktabs = TRUE,
-  caption = 'A table of the first 4 rows of our final project data.'
-)
+ggplot(tidydata, aes(x = key, y = fct_rev(id), fill = missing)) +
+  geom_tile(color = "white") +
+  ggtitle("NA value in Continents during the 20th century") +
+  ylab("Continents") +
+  xlab("columns") +
+  scale_fill_manual(values = c("lightgrey", "#153E7E")) +
+  theme_bw() + 
+  theme(axis.text.x = element_text(angle = 90)) + 
+  scale_y_discrete(labels = c( "Unknown State", "Oceania",
+                               "North America","Middle East", 
+                               "Latin America & Caribbean",
+                               "Europe",  "Asia","Africa"
+                              ))
 ```
+Based on this plot, we can find that among the eight continents, North America and the unknown states have no missing values for so many years in the past statistics, and Africa, Europe, and Latin America & the Caribbean have missing values in every academic year. And as a major source of international students in the United States, Asia has no missing value since the 21st century — The same trend is seen in the Middle East and Oceania.
+
+<br>
 
 
+## Total number of missing values by column
 ```{r}
-# draw NA pattern
-# rownames(df) <- df$`Place of Origin`
 states <- df %>%
-    setNames(.,c("name","code", substring(colnames(.)[3:34], 1, 4),"Continents"))
+    setNames(.,c("Place","Code", colnames(.)[3:34],"Cont's"))
 
 tidydata <- states[2:ncol(states)-1] %>%
       rownames_to_column("id") %>%
@@ -130,43 +150,22 @@ missing <- tidydata %>%
     summarise(sum.na = sum(is.na(value)))
 
 ggplot(missing, aes(x = 2:ncol(states)-1, y = sum.na)) +
-  geom_col(color = "blue", fill = "lightblue") +
+  geom_col(color = "#142b73", fill = "#153E7E") +
   scale_x_continuous(breaks = 2:ncol(states)-1, labels = missing$key) +
-  ggtitle("Number of missing values by years") +
+  ggtitle("Total number of missing values by column") +
   xlab("") +
   ylab("Number of total missing values") +
   theme(axis.text.x = element_text(angle = 90))
-```
-
-
-
-
-```{r, warning=FALSE}
-
-states2 <- df %>%
-  setNames(.,c("name","code", substring(colnames(.)[3:34], 6, 7),"Cont.")) %>%
-    select("name","code", "50":"95", "Cont.")
-
-rownames(states2) <- states2$name
-
-states.na <- states2 %>%
-    filter(Cont. == "Asia") 
-
-result <- rowSums(is.na(states.na)) %>%
-  sort(decreasing = TRUE)
-
-tidydata <- states.na %>%
-    filter( name %in% names(result[result != 0]) ) %>%
-    rownames_to_column("id") %>%
-    gather(key, value, -id) %>%
-    mutate(missing = ifelse(is.na(value), "yes", "no"))
-
-ggplot(tidydata, aes(x = key, y = fct_rev(id), fill = missing)) +
-  geom_tile(color = "white") +
-  ggtitle("Place has NA value in Asia") +
-  ylab("Places") +
-  xlab("columns") +
-  scale_fill_viridis_d(option = "inferno") +
-  theme_bw()
 
 ```
+<br>
+
+Based on this figure, we can find that: as time goes on, each column has fewer and fewer missing values and enters the 21st century with very small and relatively smooth data.
+
+Some of the `Code of Origin` also have missing values, as they are unable to identify by the source of data.
+
+<br>
+
+**Notes**: Before the 21st century, data were recorded every five years, and after 2000, data were recorded annually. Between considering the statistical difficulties due to the low level of technology at that time, we did not consider the data that were not recorded in the 20th century as missing value in this part.
+
+<br>

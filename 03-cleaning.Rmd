@@ -1,26 +1,19 @@
 # Data transformation
 
-
 ```{r, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-options(width = 300)
+options(width = 200)
 ```
-
 
 ```{r, message=FALSE}
 library(readxl)
 library(tidyverse)
-library(ggplot2)
 library(stringr)
-library(ggpubr)
 ```
-
 
 ## Read data
 
 Our data is come from *Open Door*, which is sponsored by the U.S. Government and Institute of International Education. The original data file format is Microsoft Excel, and `NA` is represent by "-". More, the first column name of place code is empty, so we name it by `Code of Origin`.
-
-<br>
 
 ```{r}
 projdata <- read_excel("Census_All-Places-of-Origin_OD21.xlsx", 
@@ -37,23 +30,23 @@ projdata <- read_excel("Census_All-Places-of-Origin_OD21.xlsx",
 names(projdata)[1] <- "Code of Origin"
 projdata <- projdata %>%
   select(`Place of Origin`,`Code of Origin`, `1949/50`:`2020/21`)
+```
 
+```{r, echo=FALSE}
 knitr::kable(
   head(projdata[, 1:8], 4), booktabs = TRUE,
   caption = 'A table of the first 4 rows of our final project data.'
 )
 ```
 
-<br>
-
-Here we can see the data have meaningless NA row, and the value in `Place of Origin` not unified into one logistic type, for example, all value in side are countries or regions. Thus, we need to cleaning them before analysis.
+In this table, we can see the data have meaningless NA row, and the value in `Place of Origin` not unified into one logistic type, for example, all value in side are countries or regions. Thus, we need to cleaning them before analysis.
 
 <br>
-
 
 ## Cleaning
 
 ### Remove the empty row and extra notes in data
+
 ```{r}
 uselessRow <- rowSums(is.na(projdata)) == ncol(projdata)
 numNARow <- sum(uselessRow)
@@ -63,29 +56,26 @@ projdata <- projdata[!uselessRow,] %>%
   filter(!grepl(":",`Place of Origin`))
 
 sum(rowSums(is.na(projdata)) == ncol(projdata))
+```
 
-
+```{r, echo=FALSE}
 knitr::kable(
   tail(projdata[, 1:8], 3), booktabs = TRUE,
   caption = 'A table of the last 3 rows to check no extra information.'
 )
 ```
 
-<br>
-
-Here we can see we remove the empty rows and notes in the end. Then we can clean the value.
+In this table, we can see we remove the empty rows and notes in the end, and all of the value in columns are data we need. Then we can clean the value.
 
 <br>
 
 ### Unified logic type of value and group
 
-
 In this part, we first remove the grouped summary, then deal with the former country and grouped unspecified. We assign them, based their code, on eight `Continents`, which are: Africa, Asia, Europe, Latin America & Caribbean, Middle East, North America, Oceania and Unknown State.
 
-In addition, we grouped the Unspecified countries/regions to unspecified eight continents to facilitate future analysis.
+We also grouped the Unspecified countries/regions to unspecified eight continents to facilitate future analysis. And since the `Code of Origin` give two of the Unspecified code, so we follow the rule and fill it by four digit number end with "999".
 
-```{r}
-
+```{r, echo=FALSE}
 projdata.re.state <- projdata %>%
   filter(!grepl("[0-9][0-9]00", `Code of Origin`)) %>%
   filter(!grepl("[A-Z]+$", `Place of Origin`)) %>% 
@@ -125,6 +115,13 @@ temp.data.unsp <- temp.data %>%
   mutate(`Place of Origin` = paste(Continents, "Unspecified", sep = ", ")) %>%
   select(`Place of Origin`, `Code of Origin`, `1949/50`:`2020/21`, Continents)
 
+temp.data.unsp[,3:13] <- na_if(temp.data.unsp[,3:13], 0)
+
+temp.data.unsp[temp.data.unsp$`Place of Origin` == "Africa, Unspecified",]$`Code of Origin` <- 1999
+temp.data.unsp[temp.data.unsp$`Place of Origin` == "Asia, Unspecified",]$`Code of Origin` <- 2999
+temp.data.unsp[temp.data.unsp$`Place of Origin` == "Middle East, Unspecified",]$`Code of Origin` <- 5999
+temp.data.unsp[temp.data.unsp$`Place of Origin` == "Oceania, Unspecified",]$`Code of Origin` <- 7999
+
 temp.data.fna <- temp.data  %>%
   filter(!grepl("Unspecified",`Place of Origin`) ) %>%
   mutate(Continents = case_when(grepl("Former",`Place of Origin`) ~ "Europe",
@@ -136,25 +133,49 @@ temp.data.fna <- temp.data  %>%
 
 ```
 
+```{r, echo=FALSE}
+knitr::kable(
+  tail(temp.data.unsp[, 1:4]), booktabs = TRUE,
+  caption = 'A table of Unspecified data.'
+)
+```
 
+<br>
+
+For the detail of code, please go to: [03-cleaning.Rmd](https://github.com/MISSZH0U/international_students_inUS/blob/main/03-cleaning.Rmd)
+
+<br>
 
 ## Data use for next few parts
 
+Now, this is the last step.
 We combine the unspecified Continents data to grouped data, and get the final data set we will use for analysis.
+
 ```{r}
 df <- projdata.re.state %>%
   filter(!grepl("Unspecified",`Place of Origin`) ) %>%
   rows_update(temp.data.fna, by = "Place of Origin") %>%
   rbind(., temp.data.unsp)
+```
 
+```{r, echo=FALSE}
 knitr::kable(
   head(df[, 1:8], 6), booktabs = TRUE,
   caption = 'A table of the first 6 rows of data ready for use in the future analysis.'
 )
 ```
 
+Now this table will have this: 
+
+`Place of Origin`: Including Places on country or region level, Unspecified is based on Continents level;
+
+`Code of Origin`: Code of Place, some place and former country have missing value;
+
+Academic Years: `1949/50` to `2020/21`, but the years before the 21st century were inconsistent;
+
+`Continents`: Added group, based this eight categories: Africa, Asia, Europe, Latin America & Caribbean, Middle East, North America, Oceania and Unknown State.
+
 <br>
 
+
 In next chapter, we will discuss the missing values of our data.
-
-

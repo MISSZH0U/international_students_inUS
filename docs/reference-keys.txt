@@ -17,3 +17,10 @@ unified-logic-type-of-value-and-group
 data-use-for-next-few-parts
 still-working-on-comments
 tab:unnamed-chunk-8
+na-values-by-grouped-row
+number-of-missing-values-by-column
+na-shows-in-different-groups-by-column
+total-number-of-missing-values-by-column
+tab:unnamed-chunk-12
+tab:unnamed-chunk-11
+tab:unnamed-chunk-13
