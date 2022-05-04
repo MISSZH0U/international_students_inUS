@@ -117,7 +117,7 @@ pivot_longer(c("1949/50", "1954/55", "1959/60", "1964/65", "1969/70", "1974/75",
 
 Because we have many rows in our data, but they can be classified according to Continents. Therefore, we first look at whether they have missing values in each column based on Continents.
 
-```{r, warning=FALSE}
+```{r ch4plot1, warning=FALSE}
 df.nabygroup <- df %>%
   group_by(Continents) %>%
   summarize_all(.funs = funs('NA' = sum(is.na(.)))) %>%
@@ -149,7 +149,7 @@ Based on this plot, we can find that among the eight continents, North America a
 <br>
 
 ## Total number of missing values by column
-```{r}
+```{r ch4plot2}
 states <- df %>%
     setNames(.,c("Place","Code", colnames(.)[3:34],"Cont's"))
 
