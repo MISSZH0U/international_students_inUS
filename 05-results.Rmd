@@ -228,7 +228,7 @@ p.top16 <- tidysum.asia %>%
   xlab("")+ ylab("")+
   xlim(0,200)+
   theme_linedraw() +
-  scale_color_manual(values = c("#a05195", "#153E7E"))
+  scale_color_manual(values = colorsets[c(4,2)])
 
 p.other <- tidysum.asia %>%
   filter(!(`Place of Origin` %in% top5.asia$`Place of Origin`)) %>%
