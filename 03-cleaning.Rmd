@@ -75,7 +75,7 @@ In this part, we first remove the grouped summary, then deal with the former cou
 
 We also grouped the Unspecified countries/regions to unspecified eight continents to facilitate future analysis. And since the `Code of Origin` give two of the Unspecified code, so we follow the rule and fill it by four digit number end with "999".
 
-```{r, echo=FALSE}
+```{r}
 projdata.re.state <- projdata %>%
   filter(!grepl("[0-9][0-9]00", `Code of Origin`)) %>%
   filter(!grepl("[A-Z]+$", `Place of Origin`)) %>% 
@@ -141,10 +141,6 @@ knitr::kable(
   caption = 'A table of Unspecified data.'
 )
 ```
-
-<br>
-
-For the detail of code, please go to: [03-cleaning.Rmd](https://github.com/MISSZH0U/international_students_inUS/blob/main/03-cleaning.Rmd)
 
 <br>
 
