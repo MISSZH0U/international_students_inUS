@@ -243,7 +243,7 @@ p.other <- tidysum.asia %>%
   theme_linedraw() +
   scale_color_manual(values = colorsets[c(4,2)])
 
-pt2 <- ggarrange(p.top16, p.other, ncol=1, nrow=2, common.legend = TRUE, legend="top",
+pt2 <- ggarrange(p.top16, p.other, ncol=1, nrow=2, common.legend = TRUE, legend="right",
                  align = "v")
 
 annotate_figure(pt2, 
@@ -321,7 +321,8 @@ ggplot(df.covid.diff.10, aes(x = abs(diff_rate), y = fct_reorder(`Place of Origi
   labs(title = "Place with the highest reduction rate of 
 number of students in U.S. during COVID-19") +
   ylab("") +
-  xlab("Decreased rate")+
+  xlim(0,100)+
+  xlab("Decreased rate (negetive)")+
   theme_linedraw()
 ```
 
