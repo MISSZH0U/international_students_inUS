@@ -148,7 +148,6 @@ Based on this plot, we can find that among the eight continents, North America a
 
 <br>
 
-
 ## Total number of missing values by column
 ```{r}
 states <- df %>%
