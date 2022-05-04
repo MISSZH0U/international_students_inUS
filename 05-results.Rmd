@@ -307,7 +307,7 @@ ggplotly(g, tooltip = c("x","text"))
 
 <br>
 
-This interactvie plots shows that even with the impact of the pendemic, there are countries with positive growth rates of international students study in US. Niue in Oceania has a growth rate of 900%, while the lowest is Saint Helena in Africa with a growth rate of -100%.
+This interactive plot shows that even with the impact of the pendemic, there are countries with positive growth rates of international students study in US. Niue in Oceania has a growth rate of 900%, while the lowest is Saint Helena in Africa with a growth rate of -100%.
 
 <br>
 
