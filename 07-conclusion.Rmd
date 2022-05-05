@@ -1,2 +1,24 @@
 # Conclusion
 
+## Conclusion of results
+The number of international students studying in the United States has been a common topic of discussion today. International students are vital to the exchange of ideas, innovation, economic prosperity, and peace among nations. There is no doubt that Asia, as a large population, has been the number one country for the total population of international students in the United States. Among them, China, India, and South Korea are the major source countries of international students in the United States. At the same time, the total number of international students from Africa, Europe, and Latin America regions has also been on the rise since the 21st century.
+
+
+Since 2020, the number of international students in the U.S. from around the world has changed significantly due to the severe impact of the epidemic. Until 2020, when the global epidemic broke out, the number of international students in the U.S. decreased significantly in all regions, especially in Asia, which we speculate was caused by Asian anti-epidemic policies that restricted immigration control or international political frictions. 
+
+
+Of course, international students around the world continue to value U.S. higher education, and we collectively expect a significant increase in the number of international students when pendemic is over.
+
+In addition, when we looked at the top 10 countries in terms of decrease in international students in the U.S. during COVID-19, showed that Denmark as the country with the largest change in the number of international students in the U.S. since the 2000/01 academic year. It also saw a precipitous drop in headcount change from 2019.
+
+<br>
+
+## What learned from project: limitations, future directions, and lessons
+
+In the proposal, we were not going to analyze India and China, as these must be the countries with the highest number of international students. So, we thought it was pointless to discuss. But later in our experiment, we included the study of India and China anyway. This allowed us to observe more intuitively that the number of international student in the US fell off a cliff when the epidemic.
+
+For data processing, the data set itself does not always have information recorded for each year; in the 20th century, recorded every 5 years. But if we will search at the annual rate of change from 1949/50 to 2020/21, we need to split it up. This increases the difficulty of analysis.
+
+If we want to improve our project, we need to find more websites to get enough data for further research. Our data sources are limited so additional data files is helpful. We can look for information on the number of U.S. customs entries and departures during the COVID-19 to see how the number of international students in the U.S. changed. This would lead to a more accurate conclusion that international students were primarily affected by the outbreak while studying in the United States.
+
+
